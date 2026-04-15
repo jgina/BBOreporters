@@ -1,0 +1,10 @@
+{
+  "name": "bboreporters",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start:backend": "cd backend && npm run dev",
+    "start:frontend": "cd frontend && npm start",
+    "start": "echo Use npm run start:backend or npm run start:frontend"
+  }
+}

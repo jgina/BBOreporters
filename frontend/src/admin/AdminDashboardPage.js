@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchAdminStats } from '../services/adminService';
-import { fetchPosts, fetchPostBySlug } from '../services/postService';
+import { fetchPosts } from '../services/postService';
 
 const AdminDashboardPage = () => {
   const [stats, setStats] = useState(null);
