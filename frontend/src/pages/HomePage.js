@@ -77,8 +77,8 @@ const HomePage = () => {
 
       <div className="content-grid">
         <div className="news-columns">
-          {categorySections.map(({ category, items }) => (
-            <section key={category?.slug || Math.random()} className="category-block">
+          {categorySections.map(({ category, items }, index) => (
+            <section key={category?.slug || preferredCategories[index]} className="category-block">
               <div className="section-heading">
                 <h3>{category?.name || slugToTitle(category?.slug)}</h3>
                 <p>Top stories in {category?.name || 'this beat'}.</p>

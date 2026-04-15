@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Post = require('../models/Post');
 const Category = require('../models/Category');
 
@@ -39,9 +40,11 @@ exports.getPosts = async (req, res, next) => {
 
 exports.getPostById = async (req, res, next) => {
   const identifier = req.params.id;
-  const post = await Post.findOne({
-    $or: [{ _id: identifier }, { slug: identifier }],
-  })
+  const filters = mongoose.Types.ObjectId.isValid(identifier)
+    ? { $or: [{ _id: identifier }, { slug: identifier }] }
+    : { slug: identifier };
+
+  const post = await Post.findOne(filters)
     .populate('category')
     .populate('author', 'username');
 

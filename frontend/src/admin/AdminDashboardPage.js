@@ -43,7 +43,7 @@ const AdminDashboardPage = () => {
           </div>
         </div>
       ) : (
-        <p>Loading dashboard metrics…</p>
+        <p>Loading dashboard metrics...</p>
       )}
       <section className="admin-panel">
         <div className="panel-card">
@@ -53,7 +53,7 @@ const AdminDashboardPage = () => {
               <div key={post._id} className="admin-list-item">
                 <div>
                   <h3>{post.title}</h3>
-                  <p>{post.category?.name} • {new Date(post.createdAt).toLocaleDateString()}</p>
+                  <p>{post.category?.name} - {new Date(post.createdAt).toLocaleDateString()}</p>
                 </div>
                 <Link to={`/admin/posts/${post._id}/edit`} className="button button-secondary">
                   Edit
