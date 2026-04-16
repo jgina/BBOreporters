@@ -25,22 +25,22 @@ const HomePage = () => {
   }, []);
 
   const topStory = posts[0];
-  const latest = posts.slice(1, 7);
-  const trending = posts.slice(1, 5);
-  const topStories = posts.slice(1, 4);
-  const visualLead = posts[4];
-  const visualGallery = posts.slice(5, 9);
-  const editorsPicks = posts.slice(9, 13);
-  const spotlightStories = posts.slice(13, 17);
-  const featureStack = posts.slice(17, 21);
-  const opinionLead = posts[21];
-  const opinionStories = posts.slice(22, 26);
-  const mostReadStories = [...posts].slice(0, 5);
-  const photoDeskStories = posts.slice(26, 30);
+  const latest = getStoryWindow(posts, 1, 6);
+  const trending = getStoryWindow(posts, 1, 4);
+  const topStories = getStoryWindow(posts, 1, 3);
+  const visualLead = getStoryWindow(posts, 4, 1)[0];
+  const visualGallery = getStoryWindow(posts, 5, 4);
+  const editorsPicks = getStoryWindow(posts, 9, 4);
+  const spotlightStories = getStoryWindow(posts, 13, 4);
+  const featureStack = getStoryWindow(posts, 17, 4);
+  const opinionLead = getStoryWindow(posts, 21, 1)[0];
+  const opinionStories = getStoryWindow(posts, 22, 4);
+  const mostReadStories = getStoryWindow(posts, 0, 5);
+  const photoDeskStories = getStoryWindow(posts, 26, 4);
   const newspaperSections = [
-    { title: 'National', description: 'Major developments, politics, and public interest stories from across the country.', posts: posts.slice(30, 36) },
-    { title: 'Around The City', description: 'Street-level reports, metro stories, investigations, and the pulse of everyday life.', posts: posts.slice(36, 42) },
-    { title: 'Business', description: 'Markets, regulation, enterprise, banking, and the economic stories shaping decisions.', posts: posts.slice(42, 48) },
+    { title: 'National', description: 'Major developments, politics, and public interest stories from across the country.', posts: getStoryWindow(posts, 30, 6) },
+    { title: 'Around The City', description: 'Street-level reports, metro stories, investigations, and the pulse of everyday life.', posts: getStoryWindow(posts, 36, 6) },
+    { title: 'Business', description: 'Markets, regulation, enterprise, banking, and the economic stories shaping decisions.', posts: getStoryWindow(posts, 42, 6) },
   ];
   const categorySections = preferredCategories.map((slug) => {
     const category = categories.find((cat) => cat.slug === slug);
@@ -405,6 +405,15 @@ const HomePage = () => {
 };
 
 const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
+
+const getStoryWindow = (posts, start, count) => {
+  if (!posts.length || count <= 0) return [];
+
+  return Array.from({ length: Math.min(count, posts.length) }, (_, index) => {
+    const normalizedIndex = (start + index) % posts.length;
+    return posts[normalizedIndex];
+  });
+};
 
 const slugToTitle = (slug) => {
   if (!slug) return 'News';
