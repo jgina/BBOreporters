@@ -6,6 +6,7 @@ import { isAuthenticated, logout } from '../services/authService';
 const Header = () => {
   const [categories, setCategories] = useState([]);
   const [query, setQuery] = useState('');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navigate = useNavigate();
   const authenticated = isAuthenticated();
 
@@ -16,12 +17,14 @@ const Header = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
+      setMobileNavOpen(false);
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
     }
   };
 
   const handleLogout = () => {
     logout();
+    setMobileNavOpen(false);
     navigate('/admin/login');
   };
 
@@ -51,10 +54,22 @@ const Header = () => {
             </button>
           )}
         </div>
+        <button
+          type="button"
+          className={`mobile-menu-toggle${mobileNavOpen ? ' is-open' : ''}`}
+          aria-expanded={mobileNavOpen}
+          aria-controls="site-nav"
+          aria-label={mobileNavOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          onClick={() => setMobileNavOpen((open) => !open)}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
       </div>
-      <nav className="site-nav container-lg">
+      <nav id="site-nav" className={`site-nav container-lg${mobileNavOpen ? ' is-open' : ''}`}>
         {categories.map((category) => (
-          <NavLink key={category._id} to={`/category/${category.slug}`}>
+          <NavLink key={category._id} to={`/category/${category.slug}`} onClick={() => setMobileNavOpen(false)}>
             {category.name}
           </NavLink>
         ))}

@@ -15,7 +15,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchCategories(), fetchPosts({ limit: 18, status: 'published' })])
+    Promise.all([fetchCategories(), fetchPosts({ limit: 54, status: 'published' })])
       .then(([categoriesRes, postsRes]) => {
         setCategories(categoriesRes.data);
         setPosts(postsRes.data.posts);
@@ -37,6 +37,11 @@ const HomePage = () => {
   const opinionStories = posts.slice(22, 26);
   const mostReadStories = [...posts].slice(0, 5);
   const photoDeskStories = posts.slice(26, 30);
+  const newspaperSections = [
+    { title: 'National', description: 'Major developments, politics, and public interest stories from across the country.', posts: posts.slice(30, 36) },
+    { title: 'Around The City', description: 'Street-level reports, metro stories, investigations, and the pulse of everyday life.', posts: posts.slice(36, 42) },
+    { title: 'Business', description: 'Markets, regulation, enterprise, banking, and the economic stories shaping decisions.', posts: posts.slice(42, 48) },
+  ];
   const categorySections = preferredCategories.map((slug) => {
     const category = categories.find((cat) => cat.slug === slug);
     const items = posts.filter((post) => post.category?.slug === slug).slice(0, 3);
@@ -157,12 +162,41 @@ const HomePage = () => {
                 <h3>{category?.name || slugToTitle(category?.slug)}</h3>
                 <p>Top stories in {category?.name || 'this beat'}.</p>
               </div>
-              <div className="category-grid">
-                {items.map((post) => (
-                  <NewsCard key={post._id} post={post} />
-                ))}
-                {!items.length && <p className="empty-state">No published articles yet.</p>}
-              </div>
+              {items.length ? (
+                <div className="category-feature-layout">
+                  <article className="category-lead-card">
+                    <Link to={`/post/${items[0].slug}`} className="category-lead-image">
+                      <img src={items[0].image} alt={items[0].title} loading="lazy" />
+                    </Link>
+                    <div className="category-lead-body">
+                      <span className="news-card-category">{items[0].category?.name || category?.name || 'News'}</span>
+                      <h3>
+                        <Link to={`/post/${items[0].slug}`}>{items[0].title}</Link>
+                      </h3>
+                      <p>{items[0].excerpt || stripHtml(items[0].content).slice(0, 160) + '...'}</p>
+                    </div>
+                  </article>
+
+                  <div className="category-side-stack">
+                    {items.slice(1).map((post) => (
+                      <article key={post._id} className="category-side-card">
+                        <Link to={`/post/${post.slug}`} className="category-side-image">
+                          <img src={post.image} alt={post.title} loading="lazy" />
+                        </Link>
+                        <div className="category-side-body">
+                          <span className="story-kicker">Desk Update</span>
+                          <h4>
+                            <Link to={`/post/${post.slug}`}>{post.title}</Link>
+                          </h4>
+                          <p>{post.excerpt || stripHtml(post.content).slice(0, 88) + '...'}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="empty-state">No published articles yet.</p>
+              )}
             </section>
           ))}
         </div>
@@ -320,6 +354,50 @@ const HomePage = () => {
               ))}
             </div>
           </section>
+
+          {newspaperSections.map((section) =>
+            section.posts.length ? (
+              <section key={section.title} className="front-section newspaper-section">
+                <div className="newspaper-heading">
+                  <span className="newspaper-heading-mark" />
+                  <h2>{section.title}</h2>
+                  <div className="newspaper-heading-line" />
+                </div>
+                <p className="newspaper-subtitle">{section.description}</p>
+                <div className="newspaper-layout">
+                  <article className="newspaper-lead-card">
+                    <Link to={`/post/${section.posts[0].slug}`} className="newspaper-lead-image">
+                      <img src={section.posts[0].image} alt={section.posts[0].title} loading="lazy" />
+                    </Link>
+                    <div className="newspaper-lead-body">
+                      <span className="news-card-category">{section.posts[0].category?.name || section.title}</span>
+                      <h3>
+                        <Link to={`/post/${section.posts[0].slug}`}>{section.posts[0].title}</Link>
+                      </h3>
+                      <p>{section.posts[0].excerpt || stripHtml(section.posts[0].content).slice(0, 150) + '...'}</p>
+                      <span className="meta-text">{new Date(section.posts[0].createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </article>
+
+                  <div className="newspaper-card-grid">
+                    {section.posts.slice(1).map((post, index) => (
+                      <article key={post._id} className={`newspaper-mini-card newspaper-mini-${index + 1}`}>
+                        <Link to={`/post/${post.slug}`} className="newspaper-mini-image">
+                          <img src={post.image} alt={post.title} loading="lazy" />
+                        </Link>
+                        <div className="newspaper-mini-body">
+                          <h3>
+                            <Link to={`/post/${post.slug}`}>{post.title}</Link>
+                          </h3>
+                          <span className="meta-text">{new Date(post.createdAt).toLocaleDateString()}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            ) : null
+          )}
         </>
       )}
     </section>
