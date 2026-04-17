@@ -33,6 +33,7 @@ const Header = () => {
       <div className="nav-top container-lg">
         <Link to="/" className="brand">
           <img src="/logo.png" alt="BBOReporters" className="brand-logo" />
+          <span className="brand-name">BBOreporters</span>
         </Link>
         <form className="search-form" onSubmit={handleSearch}>
           <input
