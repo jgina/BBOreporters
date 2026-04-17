@@ -1,0 +1,14 @@
+modules = ["nodejs-20", "web"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+PORT = "3001"
+NODE_ENV = "development"
+CLIENT_URL = "https://d2fa90f9-1b7d-47ec-aa71-9b85269b4fa9-00-1z4dw1grid4ah.spock.replit.dev"
+REACT_APP_API_URL = "https://d2fa90f9-1b7d-47ec-aa71-9b85269b4fa9-00-1z4dw1grid4ah.spock.replit.dev/api"
