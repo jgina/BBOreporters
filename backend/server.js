@@ -3,6 +3,7 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postRoutes');
@@ -40,7 +41,16 @@ app.use('/api/upload', uploadRoutes);
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, 'localhost', () => {
-  console.log(`Backend running on port ${PORT}`);
+if (process.env.NODE_ENV === 'production') {
+  const buildPath = path.join(__dirname, '..', 'frontend', 'build');
+  app.use(express.static(buildPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(buildPath, 'index.html'));
+  });
+}
+
+const PORT = process.env.PORT || 5000;
+const HOST = process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1';
+app.listen(PORT, HOST, () => {
+  console.log(`Backend running on ${HOST}:${PORT}`);
 });

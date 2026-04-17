@@ -8,7 +8,48 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-PORT = "3001"
 NODE_ENV = "development"
-CLIENT_URL = "https://d2fa90f9-1b7d-47ec-aa71-9b85269b4fa9-00-1z4dw1grid4ah.spock.replit.dev"
-REACT_APP_API_URL = "https://d2fa90f9-1b7d-47ec-aa71-9b85269b4fa9-00-1z4dw1grid4ah.spock.replit.dev/api"
+CLIENT_URL = "http://localhost:5000"
+REACT_APP_API_URL = "/api"
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash start.sh"
+waitForPort = 5000
+
+[workflows.workflow.metadata]
+outputType = "webview"
+
+[[ports]]
+localPort = 3001
+externalPort = 80
+exposeLocalhost = true
+
+[[ports]]
+localPort = 3002
+externalPort = 3002
+
+[[ports]]
+localPort = 5000
+externalPort = 5000
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["node", "backend/server.js"]
+build = ["bash", "-c", "cd frontend && npm run build"]
