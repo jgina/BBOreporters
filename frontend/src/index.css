@@ -102,6 +102,13 @@ a:hover {
   box-shadow: 0 10px 24px rgba(200, 29, 37, 0.32);
 }
 
+.brand-logo {
+  height: 48px;
+  width: 48px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
 .search-form {
   display: grid;
   grid-template-columns: 1fr auto;

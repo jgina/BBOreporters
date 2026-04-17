@@ -32,8 +32,7 @@ const Header = () => {
     <header className="site-header sticky">
       <div className="nav-top container-lg">
         <Link to="/" className="brand">
-          <span className="brand-mark">BBO</span>
-          <span>Reporters</span>
+          <img src="/logo.png" alt="BBOReporters" className="brand-logo" />
         </Link>
         <form className="search-form" onSubmit={handleSearch}>
           <input
