@@ -47,6 +47,9 @@ const postSchema = new mongoose.Schema(
 );
 
 postSchema.index({ title: 'text', content: 'text', tags: 'text' });
+postSchema.index({ status: 1, createdAt: -1 });
+postSchema.index({ category: 1, status: 1, createdAt: -1 });
+postSchema.index({ slug: 1 });
 
 postSchema.pre('validate', function (next) {
   if (this.title) {

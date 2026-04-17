@@ -22,13 +22,16 @@ exports.getPosts = async (req, res, next) => {
     filters.$text = { $search: search };
   }
 
-  const total = await Post.countDocuments(filters);
-  const posts = await Post.find(filters)
-    .populate('category')
-    .populate('author', 'username')
-    .sort(sortOrder)
-    .skip((page - 1) * limit)
-    .limit(limit);
+  const [total, posts] = await Promise.all([
+    Post.countDocuments(filters),
+    Post.find(filters)
+      .populate('category')
+      .populate('author', 'username')
+      .sort(sortOrder)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean(),
+  ]);
 
   res.json({
     page,
