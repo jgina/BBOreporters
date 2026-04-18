@@ -11,6 +11,7 @@ exports.getPosts = async (req, res, next) => {
   const sortOrder = req.query.sort === 'oldest' ? 'createdAt' : '-createdAt';
 
   const filters = { status: statusFilter };
+
   if (categorySlug) {
     const category = await Category.findOne({ slug: categorySlug });
     if (category) {
@@ -49,7 +50,7 @@ exports.getPostById = async (req, res, next) => {
     : { slug: identifier };
 
   const post = await Post.findOne(filters)
-    .populate('category')
+    .populate('category', 'name slug')
     .populate('author', 'username');
 
   if (!post) {
@@ -67,7 +68,10 @@ exports.createPost = async (req, res, next) => {
     return next(new Error('Title, content, image, and category are required'));
   }
 
-  const categoryDoc = await Category.findOne({ slug: category }) || await Category.findById(category);
+  const categoryDoc =
+    (await Category.findOne({ slug: category })) ||
+    (await Category.findById(category).catch(() => null));
+
   if (!categoryDoc) {
     res.status(400);
     return next(new Error('Valid category is required'));
@@ -98,7 +102,9 @@ exports.updatePost = async (req, res, next) => {
   if (content) post.content = content;
   if (image) post.image = image;
   if (category) {
-    const categoryDoc = await Category.findOne({ slug: category }) || await Category.findById(category);
+    const categoryDoc =
+      (await Category.findOne({ slug: category })) ||
+      (await Category.findById(category).catch(() => null));
     if (categoryDoc) {
       post.category = categoryDoc._id;
     }
@@ -117,6 +123,6 @@ exports.deletePost = async (req, res, next) => {
     return next(new Error('Post not found'));
   }
 
-  await post.remove();
+  await post.deleteOne();
   res.json({ message: 'Post deleted successfully' });
 };

@@ -1,18 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { fetchCategories } from '../services/categoryService';
+import { useCategories } from '../context/CategoriesContext';
 import { isAuthenticated, logout } from '../services/authService';
 
 const Header = () => {
-  const [categories, setCategories] = useState([]);
+  const { categories } = useCategories();
   const [query, setQuery] = useState('');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const navigate = useNavigate();
   const authenticated = isAuthenticated();
-
-  useEffect(() => {
-    fetchCategories().then((res) => setCategories(res.data)).catch(console.error);
-  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -69,7 +65,11 @@ const Header = () => {
       </div>
       <nav id="site-nav" className={`site-nav container-lg${mobileNavOpen ? ' is-open' : ''}`}>
         {categories.map((category) => (
-          <NavLink key={category._id} to={`/category/${category.slug}`} onClick={() => setMobileNavOpen(false)}>
+          <NavLink
+            key={category._id}
+            to={`/category/${category.slug}`}
+            onClick={() => setMobileNavOpen(false)}
+          >
             {category.name}
           </NavLink>
         ))}
