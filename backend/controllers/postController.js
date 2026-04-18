@@ -25,7 +25,8 @@ exports.getPosts = async (req, res, next) => {
   const [total, posts] = await Promise.all([
     Post.countDocuments(filters),
     Post.find(filters)
-      .populate('category')
+      .select('-content')
+      .populate('category', 'name slug')
       .populate('author', 'username')
       .sort(sortOrder)
       .skip((page - 1) * limit)

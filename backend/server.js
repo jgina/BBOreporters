@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const compression = require('compression');
 const path = require('path');
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
@@ -16,6 +17,7 @@ const errorHandler = require('./middleware/errorMiddleware');
 connectDB();
 
 const app = express();
+app.use(compression());
 app.use(helmet());
 app.use(cors({
   origin: process.env.NODE_ENV === 'development'
