@@ -9,10 +9,18 @@ channel = "stable-25_05"
 
 [userenv.shared]
 NODE_ENV = "development"
-CLIENT_URL = "https://${REPLIT_DEV_DOMAIN}"
+CLIENT_URL = "http://localhost:5000"
 REACT_APP_API_URL = "/api"
 PORT = "5000"
 DANGEROUSLY_DISABLE_HOST_CHECK = "true"
+MONGO_URI = "mongodb+srv://jrossy422:SparklingSophia%40123%24@cluster0.emczjhu.mongodb.net/dofan"
+JWT_SECRET = "1773474784858575757"
+CLOUDINARY_CLOUD_NAME = "db3ibjgbs"
+CLOUDINARY_API_KEY = "941566852824191"
+CLOUDINARY_API_SECRET = "SZZk6qpZMvRl7lokoO5glDCzXxY"
+ADMIN_USERNAME = "admin"
+ADMIN_PASSWORD = "ChangeMe123!"
+BACKEND_PORT = "3001"
 
 [workflows]
 runButton = "Project"
@@ -41,7 +49,6 @@ waitForPort = 5000
 [[ports]]
 localPort = 3001
 externalPort = 80
-exposeLocalhost = true
 
 [[ports]]
 localPort = 3002
