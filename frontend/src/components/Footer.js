@@ -20,8 +20,9 @@ const Footer = () => (
       </section>
       <section>
         <h3>Contact</h3>
+        <p>52 Circulat Road, Elekahia Housing Estate, Port Harcourt</p>
         <p>news@bboreporters.com</p>
-        <p>+234 800 000 0000</p>
+        <p>+234 802 114 4607</p>
       </section>
       <section>
         <h3>Newsletter</h3>
