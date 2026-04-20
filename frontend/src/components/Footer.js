@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import NewsletterForm from './NewsletterForm';
 
 const Footer = () => (
   <footer className="site-footer">
@@ -24,10 +25,7 @@ const Footer = () => (
       </section>
       <section>
         <h3>Newsletter</h3>
-        <form className="newsletter-form">
-          <input type="email" placeholder="Email address" aria-label="Newsletter email" />
-          <button type="submit">Subscribe</button>
-        </form>
+        <NewsletterForm />
       </section>
     </div>
     <div className="footer-bottom container-lg">

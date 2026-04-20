@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import NewsletterForm from './NewsletterForm';
 
 const Sidebar = ({ trending = [], sponsored = [] }) => (
   <aside className="sidebar-block">
@@ -24,10 +25,7 @@ const Sidebar = ({ trending = [], sponsored = [] }) => (
     <div className="widget widget-card newsletter-card">
       <h4>Newsletter</h4>
       <p>Get the latest headlines delivered every morning.</p>
-      <form>
-        <input type="email" placeholder="Your email" aria-label="Newsletter email" />
-        <button type="submit">Subscribe</button>
-      </form>
+      <NewsletterForm compact />
     </div>
     <div className="widget widget-card ad-card">
       <h4>Advertisement</h4>

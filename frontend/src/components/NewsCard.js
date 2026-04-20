@@ -1,30 +1,45 @@
 import { Link } from 'react-router-dom';
 
-const NewsCard = ({ post }) => {
-  if (!post) return null;
+const toExcerpt = (description = '', fallback = '') => {
+  if (description) return description;
+  if (!fallback) return '';
+  const plainText = fallback.replace(/<[^>]+>/g, '');
+  return `${plainText.slice(0, 120)}...`;
+};
 
-  const categorySlug = post.category?.slug;
-  const categoryName = post.category?.name || 'News';
-  const excerpt = post.excerpt || (post.content ? post.content.replace(/<[^>]+>/g, '').slice(0, 120) + '...' : '');
+const NewsCard = ({ post, title, image, category, date, description, slug, className = '' }) => {
+  const resolvedTitle = title || post?.title;
+  const resolvedImage = image || post?.image;
+  const resolvedCategory = category || post?.category?.name || 'News';
+  const resolvedCategorySlug = post?.category?.slug;
+  const resolvedDate = date || post?.createdAt;
+  const resolvedDescription = toExcerpt(description || post?.excerpt, post?.content);
+  const resolvedSlug = slug || post?.slug;
+
+  if (!resolvedTitle || !resolvedSlug) return null;
 
   return (
-    <article className="news-card">
-      <Link to={`/post/${post.slug}`} className="news-card-image">
-        <img src={post.image} alt={post.title} loading="lazy" />
+    <article className={`news-card ${className}`.trim()}>
+      <Link to={`/post/${resolvedSlug}`} className="news-card-image">
+        <img src={resolvedImage} alt={resolvedTitle} loading="lazy" />
       </Link>
       <div className="news-card-body">
-        {categorySlug ? (
-          <Link to={`/category/${categorySlug}`} className="news-card-category">
-            {categoryName}
-          </Link>
-        ) : (
-          <span className="news-card-category">{categoryName}</span>
-        )}
+        <div className="news-card-meta">
+          {resolvedCategorySlug ? (
+            <Link to={`/category/${resolvedCategorySlug}`} className="news-card-category">
+              {resolvedCategory}
+            </Link>
+          ) : (
+            <span className="news-card-category">{resolvedCategory}</span>
+          )}
+          {resolvedDate ? (
+            <span className="meta-text">{new Date(resolvedDate).toLocaleDateString()}</span>
+          ) : null}
+        </div>
         <h3>
-          <Link to={`/post/${post.slug}`}>{post.title}</Link>
+          <Link to={`/post/${resolvedSlug}`}>{resolvedTitle}</Link>
         </h3>
-        <p>{excerpt}</p>
-        <span className="meta-text">{new Date(post.createdAt).toLocaleDateString()}</span>
+        <p>{resolvedDescription}</p>
       </div>
     </article>
   );
