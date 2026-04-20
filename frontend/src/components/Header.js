@@ -31,6 +31,17 @@ const Header = () => {
           <img src="/logo.png" alt="BBOReporters" className="brand-logo" />
           <span className="brand-name">BBOreporters</span>
         </Link>
+        <nav id="site-nav" className={`site-nav${mobileNavOpen ? ' is-open' : ''}`}>
+          {categories.map((category) => (
+            <NavLink
+              key={category._id}
+              to={`/category/${category.slug}`}
+              onClick={() => setMobileNavOpen(false)}
+            >
+              {category.name}
+            </NavLink>
+          ))}
+        </nav>
         <form className="search-form" onSubmit={handleSearch}>
           <input
             aria-label="Search news"
@@ -63,17 +74,6 @@ const Header = () => {
           <span />
         </button>
       </div>
-      <nav id="site-nav" className={`site-nav container-lg${mobileNavOpen ? ' is-open' : ''}`}>
-        {categories.map((category) => (
-          <NavLink
-            key={category._id}
-            to={`/category/${category.slug}`}
-            onClick={() => setMobileNavOpen(false)}
-          >
-            {category.name}
-          </NavLink>
-        ))}
-      </nav>
     </header>
   );
 };

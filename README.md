@@ -40,3 +40,6 @@ npm run start:frontend
 - Admin credentials are seeded with `ADMIN_USERNAME` / `ADMIN_PASSWORD` when running `npm run seed`.
 - The frontend uses `REACT_APP_API_URL` to talk to the backend.
 - Image uploads are handled with Cloudinary.
+- Newsletter email delivery uses SMTP variables in `backend/.env`:
+  - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_SECURE`, `SMTP_FROM`
+  - Optional: `NEWSLETTER_NOTIFY_EMAIL` for admin notifications on new subscriptions.

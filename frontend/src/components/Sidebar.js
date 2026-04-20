@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import NewsletterForm from './NewsletterForm';
 
-const Sidebar = ({ trending = [], sponsored = [] }) => (
+const Sidebar = ({ trending = [], sponsored = [], advertisement = {} }) => (
   <aside className="sidebar-block">
     <div className="widget widget-card">
       <h4>Trending Now</h4>
@@ -28,8 +28,8 @@ const Sidebar = ({ trending = [], sponsored = [] }) => (
       <NewsletterForm compact />
     </div>
     <div className="widget widget-card ad-card">
-      <h4>Advertisement</h4>
-      <div className="ad-placeholder">Ad space available</div>
+      <h4>{advertisement.title || 'Advertisement'}</h4>
+      <div className="ad-placeholder">{advertisement.description || 'Ad space available'}</div>
     </div>
   </aside>
 );

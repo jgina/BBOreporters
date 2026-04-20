@@ -2,11 +2,16 @@ import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { fetchAdminStats } from '../services/adminService';
 import { fetchPosts, deletePost } from '../services/postService';
+import { getSiteContent, saveSiteContent } from '../services/siteContentService';
 
 const AdminDashboardPage = () => {
+  const initialSiteContent = getSiteContent();
   const [stats, setStats] = useState(null);
   const [latestPosts, setLatestPosts] = useState([]);
   const [error, setError] = useState('');
+  const [savedMessage, setSavedMessage] = useState('');
+  const [sponsored, setSponsored] = useState(initialSiteContent.sponsored);
+  const [advertisement, setAdvertisement] = useState(initialSiteContent.advertisement);
 
   const loadData = useCallback(() => {
     setError('');
@@ -33,6 +38,19 @@ const AdminDashboardPage = () => {
     } catch (err) {
       setError(err?.response?.data?.message || 'Could not delete post.');
     }
+  };
+
+  const handleSponsoredChange = (index, field, value) => {
+    setSponsored((prev) =>
+      prev.map((item, itemIndex) => (itemIndex === index ? { ...item, [field]: value } : item))
+    );
+    setSavedMessage('');
+  };
+
+  const handleSaveSiteContent = (event) => {
+    event.preventDefault();
+    saveSiteContent({ sponsored, advertisement });
+    setSavedMessage('Sponsored and advertisement content updated.');
   };
 
   return (
@@ -103,6 +121,68 @@ const AdminDashboardPage = () => {
           <Link to="/admin/categories" className="button button-secondary">
             Manage Categories
           </Link>
+        </div>
+        <div className="panel-card">
+          <h2>Sponsored & Advertisement</h2>
+          <p>Edit what appears in the homepage sidebar.</p>
+          <form className="admin-site-content-form" onSubmit={handleSaveSiteContent}>
+            <div className="admin-settings-grid">
+              {sponsored.map((item, index) => (
+                <div key={index} className="admin-settings-card">
+                  <h3>Sponsored Item {index + 1}</h3>
+                  <label>
+                    Label
+                    <input
+                      type="text"
+                      value={item.label}
+                      onChange={(event) => handleSponsoredChange(index, 'label', event.target.value)}
+                      placeholder="Sponsor name"
+                    />
+                  </label>
+                  <label>
+                    Description
+                    <input
+                      type="text"
+                      value={item.description}
+                      onChange={(event) => handleSponsoredChange(index, 'description', event.target.value)}
+                      placeholder="Short sponsor description"
+                    />
+                  </label>
+                </div>
+              ))}
+              <div className="admin-settings-card">
+                <h3>Advertisement</h3>
+                <label>
+                  Title
+                  <input
+                    type="text"
+                    value={advertisement.title}
+                    onChange={(event) =>
+                      setAdvertisement((prev) => ({ ...prev, title: event.target.value }))
+                    }
+                    placeholder="Advertisement title"
+                  />
+                </label>
+                <label>
+                  Description
+                  <input
+                    type="text"
+                    value={advertisement.description}
+                    onChange={(event) =>
+                      setAdvertisement((prev) => ({ ...prev, description: event.target.value }))
+                    }
+                    placeholder="Advertisement text"
+                  />
+                </label>
+              </div>
+            </div>
+            <div className="form-actions">
+              <button type="submit" className="button button-primary">
+                Save Sidebar Content
+              </button>
+              {savedMessage ? <span className="form-success">{savedMessage}</span> : null}
+            </div>
+          </form>
         </div>
       </section>
     </section>

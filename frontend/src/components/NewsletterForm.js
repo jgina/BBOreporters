@@ -9,8 +9,11 @@ const NewsletterForm = ({ compact = false }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    if (status.loading) return;
 
-    if (!EMAIL_REGEX.test(email.trim())) {
+    const normalizedEmail = email.trim();
+
+    if (!EMAIL_REGEX.test(normalizedEmail)) {
       setStatus({ loading: false, error: 'Please enter a valid email address.', success: '' });
       return;
     }
@@ -18,7 +21,7 @@ const NewsletterForm = ({ compact = false }) => {
     setStatus({ loading: true, error: '', success: '' });
 
     try {
-      await subscribeToNewsletter(email.trim());
+      await subscribeToNewsletter(normalizedEmail);
       setStatus({ loading: false, error: '', success: 'Subscription successful. Check your inbox.' });
       setEmail('');
     } catch (error) {
@@ -36,8 +39,14 @@ const NewsletterForm = ({ compact = false }) => {
         type="email"
         placeholder="Email address"
         aria-label="Newsletter email"
+        required
         value={email}
-        onChange={(event) => setEmail(event.target.value)}
+        onChange={(event) => {
+          setEmail(event.target.value);
+          if (status.error || status.success) {
+            setStatus((prev) => ({ ...prev, error: '', success: '' }));
+          }
+        }}
       />
       <button type="submit" disabled={status.loading}>
         {status.loading ? 'Submitting...' : 'Subscribe'}

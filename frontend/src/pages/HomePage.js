@@ -3,6 +3,7 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { fetchCategories } from '../services/categoryService';
 import { fetchPosts } from '../services/postService';
+import { getSiteContent } from '../services/siteContentService';
 import NewsCard from '../components/NewsCard';
 import Sidebar from '../components/Sidebar';
 import LoadingSkeleton from '../components/LoadingSkeleton';
@@ -19,6 +20,7 @@ const HomePage = () => {
   const [pages, setPages] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const currentPageRef = useRef(1);
+  const siteContent = getSiteContent();
 
   useEffect(() => {
     let mounted = true;
@@ -151,10 +153,8 @@ const HomePage = () => {
 
             <Sidebar
               trending={trending}
-              sponsored={[
-                { label: 'TechSmart', description: 'AI-driven insights for modern readers.' },
-                { label: 'Travel Plus', description: 'Curated journeys and lifestyle guides.' },
-              ]}
+              sponsored={siteContent.sponsored}
+              advertisement={siteContent.advertisement}
             />
           </section>
 
