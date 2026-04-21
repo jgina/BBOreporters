@@ -111,7 +111,7 @@ const HomePage = () => {
   return (
     <section className="page-content container-lg">
       <Helmet>
-        <title>BBOreporters | Breaking News & Local Coverage</title>
+        <title>TheBBOreporters | Breaking News & Local Coverage</title>
         <meta name="description" content="Stay updated with breaking news, politics, business, sports, entertainment, health, and education coverage." />
       </Helmet>
       {loading ? (
@@ -130,26 +130,37 @@ const HomePage = () => {
             </div>
           </section>
 
-          <section className="home-main-layout">
-            <article className="main-headline-card">
-              {topStory ? (
-                <>
-                  <Link to={`/post/${topStory.slug}`} className="main-headline-image">
-                    <img src={topStory.image} alt={topStory.title} loading="lazy" />
-                  </Link>
-                  <div className="main-headline-body">
-                    <span className="news-card-category">{topStory.category?.name || 'Top Story'}</span>
-                    <h1>
-                      <Link to={`/post/${topStory.slug}`}>{topStory.title}</Link>
-                    </h1>
-                    <p>{topStory.excerpt || stripHtml(topStory.content).slice(0, 180) + '...'}</p>
-                    <span className="meta-text">{new Date(topStory.createdAt).toLocaleDateString()}</span>
-                  </div>
-                </>
-              ) : (
-                <div className="empty-state">No headline story available.</div>
-              )}
-            </article>
+          <section className="home-content-shell">
+            <section className="home-main-layout">
+              <article className="main-headline-card">
+                {topStory ? (
+                  <>
+                    <Link to={`/post/${topStory.slug}`} className="main-headline-image">
+                      <img src={topStory.image} alt="" aria-hidden="true" className="main-headline-image-backdrop" loading="lazy" />
+                      <img src={topStory.image} alt={topStory.title} className="main-headline-image-main" loading="lazy" />
+                    </Link>
+                    <div className="main-headline-body">
+                      <span className="news-card-category">{topStory.category?.name || 'Top Story'}</span>
+                      <h1>
+                        <Link to={`/post/${topStory.slug}`}>{topStory.title}</Link>
+                      </h1>
+                      <p>{topStory.excerpt || stripHtml(topStory.content).slice(0, 150) + '...'}</p>
+                      <div className="main-headline-meta">
+                        <span className="meta-text">By {topStory.author?.username || 'BBOreporters Desk'}</span>
+                        <span className="meta-text">{new Date(topStory.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      <div className="main-headline-actions">
+                        <Link to={`/post/${topStory.slug}`} className="button button-primary main-headline-button">
+                          Read More
+                        </Link>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="empty-state">No headline story available.</div>
+                )}
+              </article>
+            </section>
 
             <Sidebar
               trending={trending}
@@ -158,51 +169,53 @@ const HomePage = () => {
             />
           </section>
 
-          <section className="front-section">
-            <div className="section-heading">
-              <h2>Latest News</h2>
-              <p>Latest reports from all desks.</p>
-            </div>
-            <div className="latest-news-grid">
-              {latest.map((post) => (
-                <NewsCard key={post._id} post={post} />
-              ))}
-            </div>
-          </section>
-
-          <section className="front-section dailytrust-plus-section">
-            <div className="section-heading">
-              <h2>More News</h2>
-              <p>Broader coverage from across all desks.</p>
-            </div>
-            <div className="dailytrust-plus-grid">
-              {additionalFeed.map((post) => (
-                <NewsCard key={post._id} post={post} className="dailytrust-plus-card" />
-              ))}
-            </div>
-            {page < pages ? (
-              <div className="dailytrust-loadmore">
-                <button type="button" className="button button-primary" onClick={handleLoadMore} disabled={loadingMore}>
-                  {loadingMore ? 'Loading...' : 'Load More News'}
-                </button>
+          <div className="home-below-fold">
+            <section className="front-section front-section-tight">
+              <div className="section-heading">
+                <h2>Latest News</h2>
+                <p>Latest reports from all desks.</p>
               </div>
-            ) : null}
-          </section>
+              <div className="latest-news-grid">
+                {latest.map((post) => (
+                  <NewsCard key={post._id} post={post} />
+                ))}
+              </div>
+            </section>
 
-          {categorySections.map(({ category, items }, index) =>
-            items.length ? (
-              <section key={category?.slug || preferredCategories[index]} className="front-section">
-                <div className="section-heading">
-                  <h2>{category?.name || slugToTitle(preferredCategories[index])}</h2>
+            <section className="front-section dailytrust-plus-section">
+              <div className="section-heading">
+                <h2>More News</h2>
+                <p>Broader coverage from across all desks.</p>
+              </div>
+              <div className="dailytrust-plus-grid">
+                {additionalFeed.map((post) => (
+                  <NewsCard key={post._id} post={post} className="dailytrust-plus-card" />
+                ))}
+              </div>
+              {page < pages ? (
+                <div className="dailytrust-loadmore">
+                  <button type="button" className="button button-primary" onClick={handleLoadMore} disabled={loadingMore}>
+                    {loadingMore ? 'Loading...' : 'Load More News'}
+                  </button>
                 </div>
-                <div className="latest-news-grid">
-                  {items.map((post) => (
-                    <NewsCard key={post._id} post={post} />
-                  ))}
-                </div>
-              </section>
-            ) : null
-          )}
+              ) : null}
+            </section>
+
+            {categorySections.map(({ category, items }, index) =>
+              items.length ? (
+                <section key={category?.slug || preferredCategories[index]} className="front-section">
+                  <div className="section-heading">
+                    <h2>{category?.name || slugToTitle(preferredCategories[index])}</h2>
+                  </div>
+                  <div className="latest-news-grid">
+                    {items.map((post) => (
+                      <NewsCard key={post._id} post={post} />
+                    ))}
+                  </div>
+                </section>
+              ) : null
+            )}
+          </div>
         </>
       )}
     </section>
