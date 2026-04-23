@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { CategoriesProvider } from './context/CategoriesContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import AnalyticsTracker from './components/AnalyticsTracker';
+import CookieConsentBanner from './components/CookieConsentBanner';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -22,6 +23,7 @@ function App() {
     <CategoriesProvider>
       <div className="app-shell">
         <AnalyticsTracker />
+        <CookieConsentBanner />
         <Header />
         <main>
           <ErrorBoundary>

@@ -12,6 +12,7 @@ const AdminDashboardPage = () => {
   const [savedMessage, setSavedMessage] = useState('');
   const [sponsored, setSponsored] = useState(initialSiteContent.sponsored);
   const [advertisement, setAdvertisement] = useState(initialSiteContent.advertisement);
+  const [socialLinks, setSocialLinks] = useState(initialSiteContent.socialLinks);
 
   const loadData = useCallback(() => {
     setError('');
@@ -49,8 +50,25 @@ const AdminDashboardPage = () => {
 
   const handleSaveSiteContent = (event) => {
     event.preventDefault();
-    saveSiteContent({ sponsored, advertisement });
-    setSavedMessage('Sponsored and advertisement content updated.');
+    saveSiteContent({ sponsored, advertisement, socialLinks });
+    setSavedMessage('Sidebar and social media content updated.');
+  };
+
+  const handleSocialLinkChange = (index, field, value) => {
+    setSocialLinks((prev) =>
+      prev.map((item, itemIndex) => (itemIndex === index ? { ...item, [field]: value } : item))
+    );
+    setSavedMessage('');
+  };
+
+  const handleAddSocialLink = () => {
+    setSocialLinks((prev) => [...prev, { platform: '', url: '' }]);
+    setSavedMessage('');
+  };
+
+  const handleRemoveSocialLink = (index) => {
+    setSocialLinks((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
+    setSavedMessage('');
   };
 
   return (
@@ -213,6 +231,67 @@ const AdminDashboardPage = () => {
                 Save Sidebar Content
               </button>
               {savedMessage ? <span className="form-success">{savedMessage}</span> : null}
+            </div>
+          </form>
+        </div>
+        <div className="panel-card admin-social-studio">
+          <div className="admin-sidebar-studio-head">
+            <div>
+              <span className="admin-sidebar-kicker">Social Studio</span>
+              <h2>Social Media Handles</h2>
+              <p>Control the live social buttons readers can click from your public pages.</p>
+            </div>
+            <div className="admin-sidebar-preview-note">
+              <strong>Editable links</strong>
+              <span>Add, update, or delete any platform directly from this dashboard.</span>
+            </div>
+          </div>
+          <form className="admin-site-content-form" onSubmit={handleSaveSiteContent}>
+            <div className="social-links-admin-grid">
+              {socialLinks.map((item, index) => (
+                <div key={`${item.platform}-${index}`} className="admin-settings-card social-link-card">
+                  <div className="sponsor-studio-top">
+                    <span className="sponsor-studio-index">Social Link {index + 1}</span>
+                    <button
+                      type="button"
+                      className="button button-ghost social-delete-button"
+                      onClick={() => handleRemoveSocialLink(index)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                  <label>
+                    Platform
+                    <input
+                      type="text"
+                      value={item.platform}
+                      onChange={(event) => handleSocialLinkChange(index, 'platform', event.target.value)}
+                      placeholder="Facebook"
+                    />
+                  </label>
+                  <label>
+                    URL
+                    <input
+                      type="url"
+                      value={item.url}
+                      onChange={(event) => handleSocialLinkChange(index, 'url', event.target.value)}
+                      placeholder="https://example.com/profile"
+                    />
+                  </label>
+                  <div className="social-link-preview">
+                    <span className="sponsor-preview-label">{item.platform || 'Platform name'}</span>
+                    <p>{item.url || 'Social link preview will appear here.'}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="form-actions admin-sidebar-actions">
+              <button type="button" className="button button-secondary" onClick={handleAddSocialLink}>
+                Add Social Link
+              </button>
+              <button type="submit" className="button button-primary">
+                Save Social Links
+              </button>
             </div>
           </form>
         </div>

@@ -9,6 +9,13 @@ const DEFAULT_CONTENT = {
     title: 'Advertisement',
     description: 'Ad space available',
   },
+  socialLinks: [
+    { platform: 'Facebook', url: 'https://www.facebook.com/share/1c3kxqrqLG/' },
+    { platform: 'YouTube', url: 'https://youtube.com/@bboreporters?si=QzYHQKDggs5_qWwr' },
+    { platform: 'X', url: 'https://x.com/BBOreporter' },
+    { platform: 'Telegram', url: 'https://t.me/BBOreporter' },
+    { platform: 'Instagram', url: 'https://www.instagram.com/bboreporters/' },
+  ],
 };
 
 export const getSiteContent = () => {
@@ -27,6 +34,14 @@ export const getSiteContent = () => {
             description: parsed.advertisement.description || DEFAULT_CONTENT.advertisement.description,
           }
         : DEFAULT_CONTENT.advertisement,
+      socialLinks: Array.isArray(parsed?.socialLinks) && parsed.socialLinks.length
+        ? parsed.socialLinks
+            .map((item) => ({
+              platform: item?.platform || '',
+              url: item?.url || '',
+            }))
+            .filter((item) => item.platform || item.url)
+        : DEFAULT_CONTENT.socialLinks,
     };
   } catch {
     return DEFAULT_CONTENT;
