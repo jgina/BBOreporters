@@ -146,8 +146,8 @@ const HomePage = () => {
                       </h1>
                       <p>{topStory.excerpt || stripHtml(topStory.content).slice(0, 150) + '...'}</p>
                       <div className="main-headline-meta">
-                        <span className="meta-text">By {topStory.author?.username || 'BBOreporters Desk'}</span>
-                        <span className="meta-text">{new Date(topStory.createdAt).toLocaleDateString()}</span>
+                        <span className="meta-text">By {topStory.sourceName || 'BBOreporters Desk'}</span>
+                        <span className="meta-text">{new Date(topStory.publishAt || topStory.createdAt).toLocaleDateString()}</span>
                       </div>
                       <div className="main-headline-actions">
                         <Link to={`/post/${topStory.slug}`} className="button button-primary main-headline-button">

@@ -17,7 +17,7 @@ const AdminDashboardPage = () => {
     setError('');
     Promise.all([
       fetchAdminStats(),
-      fetchPosts({ limit: 10 }),
+      fetchPosts({ limit: 10, status: 'all' }),
     ])
       .then(([statsRes, postsRes]) => {
         setStats(statsRes.data);
@@ -80,6 +80,10 @@ const AdminDashboardPage = () => {
             <p>Drafts</p>
           </div>
           <div className="stat-card">
+            <h3>{stats.scheduledPosts}</h3>
+            <p>Scheduled</p>
+          </div>
+          <div className="stat-card">
             <h3>{stats.totalCategories}</h3>
             <p>Categories</p>
           </div>
@@ -101,7 +105,7 @@ const AdminDashboardPage = () => {
                   <p>
                     {post.category?.name || 'Uncategorised'} &mdash;{' '}
                     <span style={{ textTransform: 'capitalize' }}>{post.status}</span> &mdash;{' '}
-                    {new Date(post.createdAt).toLocaleDateString()}
+                    {(post.publishAt || post.createdAt) ? new Date(post.publishAt || post.createdAt).toLocaleString() : ''}
                   </p>
                 </div>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>

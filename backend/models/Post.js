@@ -37,10 +37,19 @@ const postSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
+    sourceName: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     status: {
       type: String,
-      enum: ['draft', 'published'],
+      enum: ['draft', 'published', 'scheduled'],
       default: 'draft',
+    },
+    publishAt: {
+      type: Date,
+      default: null,
     },
   },
   { timestamps: true }
@@ -48,6 +57,7 @@ const postSchema = new mongoose.Schema(
 
 postSchema.index({ title: 'text', content: 'text', tags: 'text' });
 postSchema.index({ status: 1, createdAt: -1 });
+postSchema.index({ status: 1, publishAt: 1, createdAt: -1 });
 postSchema.index({ category: 1, status: 1, createdAt: -1 });
 postSchema.index({ slug: 1 });
 

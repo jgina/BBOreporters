@@ -85,8 +85,8 @@ const PostPage = () => {
             )}
             <h1>{post.title}</h1>
             <div className="post-byline">
-              <span>By {post.author?.username || 'BBOreporters'}</span>
-              <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+              <span>By {post.sourceName || 'BBOreporters Desk'}</span>
+              <span>{new Date(post.publishAt || post.createdAt).toLocaleDateString()}</span>
             </div>
           </div>
 
