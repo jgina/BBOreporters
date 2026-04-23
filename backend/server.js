@@ -12,6 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const postRoutes = require('./routes/postRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const authorRoutes = require('./routes/authorRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const errorHandler = require('./middleware/errorMiddleware');
@@ -41,6 +42,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/authors', authorRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 

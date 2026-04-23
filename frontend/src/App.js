@@ -6,11 +6,14 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
+import AuthorsPage from './pages/AuthorsPage';
+import AuthorProfilePage from './pages/AuthorProfilePage';
 import CategoryPage from './pages/CategoryPage';
 import PostPage from './pages/PostPage';
 import SearchPage from './pages/SearchPage';
 import AdminLoginPage from './admin/AdminLoginPage';
 import AdminDashboardPage from './admin/AdminDashboardPage';
+import AdminAuthorsPage from './admin/AdminAuthorsPage';
 import AdminPostEditorPage from './admin/AdminPostEditorPage';
 import AdminCategoryPage from './admin/AdminCategoryPage';
 
@@ -24,6 +27,8 @@ function App() {
           <ErrorBoundary>
             <Routes>
               <Route path="/" element={<HomePage />} />
+              <Route path="/authors" element={<AuthorsPage />} />
+              <Route path="/authors/:slug" element={<AuthorProfilePage />} />
               <Route path="/category/:slug" element={<CategoryPage />} />
               <Route path="/post/:slug" element={<PostPage />} />
               <Route path="/search" element={<SearchPage />} />
@@ -57,6 +62,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminCategoryPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/admin/authors"
+                element={
+                  <ProtectedRoute>
+                    <AdminAuthorsPage />
                   </ProtectedRoute>
                 }
               />

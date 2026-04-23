@@ -125,6 +125,9 @@ const AdminDashboardPage = () => {
           <Link to="/admin/categories" className="button button-secondary">
             Manage Categories
           </Link>
+          <Link to="/admin/authors" className="button button-secondary">
+            Manage Authors
+          </Link>
         </div>
         <div className="panel-card admin-sidebar-studio">
           <div className="admin-sidebar-studio-head">
