@@ -126,13 +126,26 @@ const AdminDashboardPage = () => {
             Manage Categories
           </Link>
         </div>
-        <div className="panel-card">
-          <h2>Sponsored & Advertisement</h2>
-          <p>Edit what appears in the homepage sidebar.</p>
+        <div className="panel-card admin-sidebar-studio">
+          <div className="admin-sidebar-studio-head">
+            <div>
+              <span className="admin-sidebar-kicker">Sidebar Studio</span>
+              <h2>Sponsored & Advertisement</h2>
+              <p>Edit what appears in the homepage sidebar with a cleaner, more branded presentation.</p>
+            </div>
+            <div className="admin-sidebar-preview-note">
+              <strong>Live feel</strong>
+              <span>Shape the blocks readers see beside your top stories.</span>
+            </div>
+          </div>
           <form className="admin-site-content-form" onSubmit={handleSaveSiteContent}>
             <div className="admin-settings-grid">
               {sponsored.map((item, index) => (
-                <div key={index} className="admin-settings-card">
+                <div key={index} className="admin-settings-card sponsor-studio-card">
+                  <div className="sponsor-studio-top">
+                    <span className="sponsor-studio-index">Sponsor {index + 1}</span>
+                    <span className="sponsor-studio-badge">Featured</span>
+                  </div>
                   <h3>Sponsored Item {index + 1}</h3>
                   <label>
                     Label
@@ -152,9 +165,17 @@ const AdminDashboardPage = () => {
                       placeholder="Short sponsor description"
                     />
                   </label>
+                  <div className="sponsor-studio-preview">
+                    <span className="sponsor-preview-label">{item.label || 'Sponsor name'}</span>
+                    <p>{item.description || 'Short sponsor description will appear here.'}</p>
+                  </div>
                 </div>
               ))}
-              <div className="admin-settings-card">
+              <div className="admin-settings-card ad-studio-card">
+                <div className="sponsor-studio-top">
+                  <span className="sponsor-studio-index">Advertisement</span>
+                  <span className="sponsor-studio-badge">Promo</span>
+                </div>
                 <h3>Advertisement</h3>
                 <label>
                   Title
@@ -178,9 +199,13 @@ const AdminDashboardPage = () => {
                     placeholder="Advertisement text"
                   />
                 </label>
+                <div className="ad-studio-preview">
+                  <span className="ad-studio-tag">{advertisement.title || 'Advertisement'}</span>
+                  <p>{advertisement.description || 'Advertisement copy preview appears here.'}</p>
+                </div>
               </div>
             </div>
-            <div className="form-actions">
+            <div className="form-actions admin-sidebar-actions">
               <button type="submit" className="button button-primary">
                 Save Sidebar Content
               </button>
