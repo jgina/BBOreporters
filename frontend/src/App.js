@@ -11,6 +11,7 @@ import AuthorsPage from './pages/AuthorsPage';
 import AuthorProfilePage from './pages/AuthorProfilePage';
 import CategoryPage from './pages/CategoryPage';
 import PostPage from './pages/PostPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import SearchPage from './pages/SearchPage';
 import AdminLoginPage from './admin/AdminLoginPage';
 import AdminDashboardPage from './admin/AdminDashboardPage';
@@ -33,6 +34,7 @@ function App() {
               <Route path="/authors/:slug" element={<AuthorProfilePage />} />
               <Route path="/category/:slug" element={<CategoryPage />} />
               <Route path="/post/:slug" element={<PostPage />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/admin/login" element={<AdminLoginPage />} />
               <Route
