@@ -34,6 +34,7 @@ const Footer = () => {
             <li><Link to="/">Home</Link></li>
             <li><Link to="/search?q=politics">Search</Link></li>
             <li><Link to="/authors">Authors</Link></li>
+            <li><Link to="/privacy-policy">Privacy Policy</Link></li>
             {authenticated ? <li><Link to="/admin">Admin</Link></li> : null}
             <li>
               <button

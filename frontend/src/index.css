@@ -2676,6 +2676,63 @@ a:hover {
   line-height: 1.8;
 }
 
+.legal-page {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.legal-hero {
+  padding: 1.7rem;
+  border-radius: 1.4rem;
+  border: 1px solid rgba(200, 29, 37, 0.12);
+  background:
+    radial-gradient(circle at top right, rgba(200, 29, 37, 0.08), transparent 26%),
+    linear-gradient(180deg, #fff8f8, #ffffff);
+}
+
+.legal-hero h1 {
+  margin: 0.2rem 0 0.55rem;
+  font-size: clamp(2rem, 3vw, 3rem);
+}
+
+.legal-hero p {
+  margin: 0.25rem 0 0;
+  color: #606060;
+}
+
+.legal-shell {
+  display: grid;
+  gap: 1rem;
+  padding: 1.3rem;
+  border-radius: 1.3rem;
+  border: 1px solid #ececec;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(17, 17, 17, 0.05);
+}
+
+.legal-section {
+  padding: 1rem 1.1rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(200, 29, 37, 0.08);
+  background: linear-gradient(180deg, #ffffff, #fffafa);
+}
+
+.legal-section h2,
+.legal-section h3 {
+  margin-top: 0;
+}
+
+.legal-section p,
+.legal-section li {
+  color: #444444;
+  line-height: 1.8;
+}
+
+.legal-section ul {
+  margin: 0.65rem 0 0;
+  padding-left: 1.25rem;
+}
+
 .dailytrust-plus-section {
   border-top: 2px solid #f0f0f0;
   padding-top: 1rem;
