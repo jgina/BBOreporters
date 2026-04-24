@@ -58,6 +58,7 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <AdminPostEditorPage />
+                    
                   </ProtectedRoute>
                 }
               />
