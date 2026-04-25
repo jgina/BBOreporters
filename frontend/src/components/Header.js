@@ -50,7 +50,7 @@ const Header = () => {
           <Link to="/" className="brand brand-sun">
             <img src="/logo.png" alt="BBOReporters" className="brand-logo" />
             <span className="brand-lockup">
-              <span className="brand-name">TheBBOreporters</span>
+              <span className="brand-name">BBOreporters</span>
               <span className="brand-tag">Voice for News</span>
             </span>
           </Link>
