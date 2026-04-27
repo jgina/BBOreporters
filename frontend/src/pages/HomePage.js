@@ -111,20 +111,13 @@ const HomePage = () => {
 
   return (
     <section className="page-content container-lg">
-      {/* <Helmet>
+      <Helmet>
         <title>TheBBOreporters | Breaking News & Local Coverage</title>
         <meta name="description" content="Stay updated with breaking news, politics, business, sports, entertainment, health, and education coverage." />
-      </Helmet> */}
+  </Helmet>
+      
 
-    <Helmet>
-  <title>{news.title}</title>
-  <meta property="og:title" content={news.title} />
-  <meta property="og:description" content={news.summary} />
-  <meta property="og:image" content={news.image} />
-  <meta property="og:url" content={`https://bboreporters.com/news/${news.slug}`} />
-  <meta property="og:type" content="article" />
-</Helmet>
-
+      
       {loading ? (
         <LoadingSkeleton />
       ) : (
