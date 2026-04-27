@@ -111,12 +111,17 @@ const HomePage = () => {
   // Helper inside the component to ensure it's accessible
   const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
 
-  // Meta dynamic content
+  // --- Metadata Logic ---
+  const siteUrl = "https://thebboreporters.com";
   const metaTitle = topStory ? `${topStory.title} | TheBBOreporters` : 'TheBBOreporters | Breaking News & Local Coverage';
   const metaDescription = topStory 
     ? (topStory.excerpt || stripHtml(topStory.content).slice(0, 150) + '...') 
     : 'Stay updated with breaking news, politics, business, sports, and more.';
-  const metaImage = topStory?.image || '/default-og-image.jpg'; // Fallback to a default site image
+  
+  // Force Absolute URL for the image
+  const metaImage = topStory?.image?.startsWith('http') 
+    ? topStory.image 
+    : `${siteUrl}${topStory?.image || '/default-og-image.jpg'}`;
 
   return (
     <section className="page-content container-lg">
@@ -124,14 +129,17 @@ const HomePage = () => {
         <title>{metaTitle}</title>
         <meta name="description" content={metaDescription} />
 
-        {/* Facebook / WhatsApp / LinkedIn */}
+        {/* Facebook / WhatsApp / LinkedIn / Telegram */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={metaImage} />
+        <meta property="og:image:secure_url" content={metaImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
 
-        {/* Twitter */}
+        {/* X (Twitter) */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={metaTitle} />
         <meta name="twitter:description" content={metaDescription} />
@@ -245,9 +253,6 @@ const HomePage = () => {
     </section>
   );
 };
-
-// Functions moved outside the component or duplicated if needed for SEO logic
-const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
 
 const slugToTitle = (slug) => {
   if (!slug) return 'News';

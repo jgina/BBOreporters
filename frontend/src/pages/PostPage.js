@@ -70,9 +70,14 @@ const PostPage = () => {
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
   
   // Prepare dynamic meta content
+  const siteUrl = "https://thebboreporters.com";
   const metaTitle = `${post.title} | BBOreporters`;
   const metaDescription = post.excerpt || stripHtml(post.content).slice(0, 155) + '...';
-  const metaImage = post.image;
+  
+  // FIX: Force Absolute URL for metadata image
+  const metaImage = post?.image?.startsWith('http') 
+    ? post.image 
+    : `${siteUrl}${post.image}`;
 
   return (
     <section className="page-content container-lg post-page">
@@ -87,6 +92,9 @@ const PostPage = () => {
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={metaImage} />
+        <meta property="og:image:secure_url" content={metaImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:image:alt" content={post.title} />
 
         {/* Twitter / X */}
