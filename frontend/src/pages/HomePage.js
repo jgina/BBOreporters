@@ -8,6 +8,7 @@ import NewsCard from '../components/NewsCard';
 import Sidebar from '../components/Sidebar';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 
+
 const preferredCategories = ['politics', 'business', 'sports', 'entertainment', 'health', 'education'];
 const POSTS_PER_PAGE = 12;
 
@@ -237,5 +238,15 @@ const slugToTitle = (slug) => {
   if (!slug) return 'News';
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 };
+
+<Helmet>
+  <title>{news.title}</title>
+  <meta property="og:title" content={news.title} />
+  <meta property="og:description" content={news.summary} />
+  <meta property="og:image" content={news.image} />
+  <meta property="og:url" content={`https://bboreporters.com/news/${news.slug}`} />
+  <meta property="og:type" content="article" />
+</Helmet>
+
 
 export default HomePage;
