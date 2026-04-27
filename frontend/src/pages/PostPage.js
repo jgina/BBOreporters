@@ -68,8 +68,8 @@ const PostPage = () => {
   }
 
   // 🔥 FIXED SHARE URL (IMPORTANT)
-  const siteUrl = "https://thebboreporters.com";
-  const shareUrl = `${siteUrl}/api/posts/share/${post.slug}`;
+  const siteUrl = "https://bboreporters.com";
+  const shareUrl = `${siteUrl}/share/${post.slug}`;
 
   const metaTitle = `${post.title} | BBOreporters`;
   const metaDescription = post.excerpt || stripHtml(post.content).slice(0, 155) + '...';
