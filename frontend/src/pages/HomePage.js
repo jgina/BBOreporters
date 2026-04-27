@@ -8,7 +8,6 @@ import NewsCard from '../components/NewsCard';
 import Sidebar from '../components/Sidebar';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 
-
 const preferredCategories = ['politics', 'business', 'sports', 'entertainment', 'health', 'education'];
 const POSTS_PER_PAGE = 12;
 
@@ -109,15 +108,36 @@ const HomePage = () => {
     }
   };
 
+  // Helper inside the component to ensure it's accessible
+  const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
+
+  // Meta dynamic content
+  const metaTitle = topStory ? `${topStory.title} | TheBBOreporters` : 'TheBBOreporters | Breaking News & Local Coverage';
+  const metaDescription = topStory 
+    ? (topStory.excerpt || stripHtml(topStory.content).slice(0, 150) + '...') 
+    : 'Stay updated with breaking news, politics, business, sports, and more.';
+  const metaImage = topStory?.image || '/default-og-image.jpg'; // Fallback to a default site image
+
   return (
     <section className="page-content container-lg">
       <Helmet>
-        <title>TheBBOreporters | Breaking News & Local Coverage</title>
-        <meta name="description" content="Stay updated with breaking news, politics, business, sports, entertainment, health, and education coverage." />
-  </Helmet>
-      
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
 
-      
+        {/* Facebook / WhatsApp / LinkedIn */}
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:image" content={metaImage} />
+
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={metaImage} />
+      </Helmet>
+
       {loading ? (
         <LoadingSkeleton />
       ) : (
@@ -226,21 +246,12 @@ const HomePage = () => {
   );
 };
 
+// Functions moved outside the component or duplicated if needed for SEO logic
 const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
-
-const getStoryWindow = (posts, start, count) => {
-  if (!posts.length || count <= 0) return [];
-
-  return Array.from({ length: Math.min(count, posts.length) }, (_, index) => {
-    const normalizedIndex = (start + index) % posts.length;
-    return posts[normalizedIndex];
-  });
-};
 
 const slugToTitle = (slug) => {
   if (!slug) return 'News';
   return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 };
-
 
 export default HomePage;
