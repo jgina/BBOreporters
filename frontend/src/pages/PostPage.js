@@ -67,37 +67,31 @@ const PostPage = () => {
     return <div className="empty-state container-lg">{error || 'Story not found.'}</div>;
   }
 
-  const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
-  
-  // Prepare dynamic meta content
+  // 🔥 FIXED SHARE URL (IMPORTANT)
   const siteUrl = "https://thebboreporters.com";
+  const shareUrl = `${siteUrl}/api/posts/share/${post.slug}`;
+
   const metaTitle = `${post.title} | BBOreporters`;
   const metaDescription = post.excerpt || stripHtml(post.content).slice(0, 155) + '...';
-  
-  // FIX: Force Absolute URL for metadata image
-  const metaImage = post?.image?.startsWith('http') 
-    ? post.image 
+
+  const metaImage = post?.image?.startsWith('http')
+    ? post.image
     : `${siteUrl}${post.image}`;
 
   return (
     <section className="page-content container-lg post-page">
       <Helmet>
-        {/* Standard SEO */}
         <title>{metaTitle}</title>
         <meta name="description" content={metaDescription} />
 
-        {/* Open Graph / Facebook / WhatsApp */}
+        {/* Open Graph */}
         <meta property="og:type" content="article" />
         <meta property="og:url" content={shareUrl} />
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={metaImage} />
-        <meta property="og:image:secure_url" content={metaImage} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content={post.title} />
 
-        {/* Twitter / X */}
+        {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={metaTitle} />
         <meta name="twitter:description" content={metaDescription} />
@@ -114,7 +108,9 @@ const PostPage = () => {
             ) : (
               <span className="post-category">{post.category?.name || 'News'}</span>
             )}
+
             <h1>{post.title}</h1>
+
             <div className="post-byline">
               <span>By {post.sourceName || 'BBOreporters Desk'}</span>
               <span>{new Date(post.publishAt || post.createdAt).toLocaleDateString()}</span>
@@ -122,10 +118,12 @@ const PostPage = () => {
           </div>
 
           <img className="post-featured" src={post.image} alt={post.title} loading="lazy" />
+
           <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content }} />
 
           <div className="post-share">
             <span>Share this story:</span>
+
             <a
               href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
               target="_blank"
@@ -134,6 +132,7 @@ const PostPage = () => {
             >
               Facebook
             </a>
+
             <a
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`}
               target="_blank"
@@ -142,7 +141,8 @@ const PostPage = () => {
             >
               Twitter
             </a>
-            <button 
+
+            <button
               className="share-btn copy"
               onClick={() => {
                 navigator.clipboard.writeText(shareUrl);
