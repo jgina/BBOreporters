@@ -6,6 +6,9 @@ import { getSiteContent } from '../services/siteContentService';
 import NewsCard from '../components/NewsCard';
 import Sidebar from '../components/Sidebar';
 
+// Helper to clean HTML for meta descriptions
+const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
+
 const PostPage = () => {
   const { slug } = useParams();
   const [post, setPost] = useState(null);
@@ -65,12 +68,32 @@ const PostPage = () => {
   }
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
+  
+  // Prepare dynamic meta content
+  const metaTitle = `${post.title} | BBOreporters`;
+  const metaDescription = post.excerpt || stripHtml(post.content).slice(0, 155) + '...';
+  const metaImage = post.image;
 
   return (
     <section className="page-content container-lg post-page">
       <Helmet>
-        <title>{post.title} | BBOreporters</title>
-        <meta name="description" content={post.excerpt || 'Read the full story on BBOreporters.'} />
+        {/* Standard SEO */}
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+
+        {/* Open Graph / Facebook / WhatsApp */}
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={shareUrl} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:image" content={metaImage} />
+        <meta property="og:image:alt" content={post.title} />
+
+        {/* Twitter / X */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        <meta name="twitter:image" content={metaImage} />
       </Helmet>
 
       <div className="post-layout">
@@ -99,6 +122,7 @@ const PostPage = () => {
               href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
               target="_blank"
               rel="noreferrer"
+              className="share-btn fb"
             >
               Facebook
             </a>
@@ -106,9 +130,19 @@ const PostPage = () => {
               href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent(shareUrl)}`}
               target="_blank"
               rel="noreferrer"
+              className="share-btn tw"
             >
               Twitter
             </a>
+            <button 
+              className="share-btn copy"
+              onClick={() => {
+                navigator.clipboard.writeText(shareUrl);
+                alert('Link copied to clipboard!');
+              }}
+            >
+              Copy Link
+            </button>
           </div>
         </article>
 
