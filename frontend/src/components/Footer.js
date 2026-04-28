@@ -50,7 +50,8 @@ const Footer = () => {
         <section>
           <h3>Contact</h3>
           <p>52 Circulat Road, Elekahia Housing Estate, Port Harcourt</p>
-          <p>news@bboreporters.com</p>
+          <p>support@bboreporters.com</p>
+          <p>customercare@bboreporters.com</p>
           <p>+2348103250734</p>
         </section>
         <section>

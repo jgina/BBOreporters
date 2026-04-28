@@ -112,8 +112,8 @@ const HomePage = () => {
   const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
 
   // --- Metadata Logic ---
-  const siteUrl = "https://thebboreporters.com";
-  const metaTitle = topStory ? `${topStory.title} | TheBBOreporters` : 'TheBBOreporters | Breaking News & Local Coverage';
+  const siteUrl = "https://bboreporters.com";
+  const metaTitle = topStory ? `${topStory.title} | BBOreporters` : 'BBOreporters | Breaking News & Local Coverage';
   const metaDescription = topStory 
     ? (topStory.excerpt || stripHtml(topStory.content).slice(0, 150) + '...') 
     : 'Stay updated with breaking news, politics, business, sports, and more.';
