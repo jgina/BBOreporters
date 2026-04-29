@@ -68,6 +68,65 @@ const escapeHtml = (value = '') =>
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
 
+const buildShareHtml = ({ title, description, image, articleUrl, previewUrl }) => `
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>${escapeHtml(title)}</title>
+    <meta name="description" content="${escapeHtml(description)}" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="TheBBOreporters" />
+    <meta property="og:url" content="${escapeHtml(previewUrl)}" />
+    <meta property="og:title" content="${escapeHtml(title)}" />
+    <meta property="og:description" content="${escapeHtml(description)}" />
+    <meta property="og:image" content="${escapeHtml(image)}" />
+    <meta property="og:image:url" content="${escapeHtml(image)}" />
+    <meta property="og:image:secure_url" content="${escapeHtml(image)}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${escapeHtml(title)}" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="${escapeHtml(title)}" />
+    <meta name="twitter:description" content="${escapeHtml(description)}" />
+    <meta name="twitter:image" content="${escapeHtml(image)}" />
+    <meta name="twitter:image:alt" content="${escapeHtml(title)}" />
+
+    <link rel="canonical" href="${escapeHtml(previewUrl)}" />
+  </head>
+  <body>
+    <script>
+      window.location.replace("${escapeHtml(articleUrl)}");
+    </script>
+    <p>Redirecting to <a href="${escapeHtml(articleUrl)}">${escapeHtml(title)}</a>...</p>
+  </body>
+  </html>
+`;
+
+const getVisiblePostBySlug = async (slug) =>
+  Post.findOne({
+    $and: [buildVisiblePostsFilter(), { slug }],
+  }).lean();
+
+const buildSharePayload = (req, post) => {
+  const siteUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+  const articleUrl = `${siteUrl}/post/${post.slug}`;
+  const previewUrl = `${siteUrl}/share/${post.slug}`;
+  const image = post.image?.startsWith('http') ? post.image : `${siteUrl}${post.image}`;
+  const description =
+    post.excerpt || (post.content ? post.content.replace(/<[^>]+>/g, '').slice(0, 155) : '');
+
+  return {
+    title: post.title,
+    description,
+    image,
+    articleUrl,
+    previewUrl,
+  };
+};
+
 // ================= GET POSTS =================
 exports.getPosts = async (req, res, next) => {
   const page = Number(req.query.page) || 1;
@@ -271,69 +330,35 @@ exports.deletePost = async (req, res, next) => {
 exports.getPostSharePage = async (req, res) => {
   try {
     const { slug } = req.params;
-
-    const post = await Post.findOne({
-      $and: [buildVisiblePostsFilter(), { slug }],
-    }).lean();
+    const post = await getVisiblePostBySlug(slug);
 
     if (!post) {
       return res.status(404).send('Post not found');
     }
-
-    const siteUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
-    const canonicalUrl = `${siteUrl}/post/${slug}`;
-    const previewUrl = `${siteUrl}/share/${slug}`;
-
-    const image = post.image?.startsWith('http')
-      ? post.image
-      : `${siteUrl}${post.image}`;
-
-    const description =
-      post.excerpt ||
-      (post.content
-        ? post.content.replace(/<[^>]+>/g, '').slice(0, 155)
-        : '');
-
-    const safeTitle = escapeHtml(post.title);
-    const safeDescription = escapeHtml(description);
-    const safeImage = escapeHtml(image);
-    const safeCanonicalUrl = escapeHtml(canonicalUrl);
-    const safePreviewUrl = escapeHtml(previewUrl);
-
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${safeTitle}</title>
-
-        <meta property="og:type" content="article" />
-        <meta property="og:site_name" content="TheBBOreporters" />
-        <meta property="og:url" content="${safePreviewUrl}" />
-        <meta property="og:title" content="${safeTitle}" />
-        <meta property="og:description" content="${safeDescription}" />
-        <meta property="og:image" content="${safeImage}" />
-        <meta property="og:image:secure_url" content="${safeImage}" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="${safeTitle}" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="${safeTitle}" />
-        <meta name="twitter:description" content="${safeDescription}" />
-        <meta name="twitter:image" content="${safeImage}" />
-        <meta name="twitter:image:alt" content="${safeTitle}" />
-
-        <link rel="canonical" href="${safeCanonicalUrl}" />
-
-        <script>
-          window.location.replace("${safeCanonicalUrl}");
-        </script>
-      </head>
-      <body></body>
-      </html>
-    `);
+    res.send(buildShareHtml(buildSharePayload(req, post)));
   } catch (error) {
     console.error('Share meta error:', error);
     res.status(500).send('Server error');
+  }
+};
+
+exports.getPostMetaForCrawler = async (req, res, next) => {
+  try {
+    const userAgent = (req.get('user-agent') || '').toLowerCase();
+    const isCrawler = /(facebookexternalhit|facebot|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|googlebot)/i.test(userAgent);
+
+    if (!isCrawler) {
+      return next();
+    }
+
+    const post = await getVisiblePostBySlug(req.params.slug);
+
+    if (!post) {
+      return next();
+    }
+
+    res.send(buildShareHtml(buildSharePayload(req, post)));
+  } catch (error) {
+    next(error);
   }
 };

@@ -15,7 +15,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const authorRoutes = require('./routes/authorRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const newsletterRoutes = require('./routes/newsletterRoutes');
-const { getPostSharePage } = require('./controllers/postController');
+const { getPostSharePage, getPostMetaForCrawler } = require('./controllers/postController');
 const errorHandler = require('./middleware/errorMiddleware');
 
 connectDB();
@@ -40,6 +40,7 @@ app.get('/api/health', (req, res) => {
 });
 
 app.get('/share/:slug', getPostSharePage);
+app.get('/post/:slug', getPostMetaForCrawler);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
