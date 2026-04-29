@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { createPost, updatePost, uploadImage, fetchPostForEdit } from '../services/postService';
+import { createPost, updatePost, fetchPostForEdit } from '../services/postService';
 import { fetchCategories } from '../services/categoryService';
 
 const emptyForm = {
@@ -11,7 +11,6 @@ const emptyForm = {
   content: '',
   category: '',
   tags: '',
-  image: '',
   status: 'draft',
   publishAt: '',
 };
@@ -30,11 +29,12 @@ const AdminPostEditorPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [form, setForm] = useState(emptyForm);
-  const [preview, setPreview] = useState('');
+  const [existingImages, setExistingImages] = useState([]);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [categories, setCategories] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchCategories()
@@ -52,35 +52,49 @@ const AdminPostEditorPage = () => {
             content: post.content || '',
             category: post.category?.slug || '',
             tags: (post.tags || []).join(', '),
-            image: post.image || '',
             status: post.status || 'draft',
             publishAt: toDateTimeLocal(post.publishAt),
           });
-          setPreview(post.image || '');
+          const currentImages = post.images?.length ? post.images : post.image ? [post.image] : [];
+          setExistingImages(currentImages);
         })
         .catch((err) => setError(err?.response?.data?.message || 'Could not load post'))
         .finally(() => setLoading(false));
     }
   }, [id]);
 
+  useEffect(() => {
+    const nextPreviews = selectedImages.map((file) => ({
+      key: `${file.name}-${file.lastModified}`,
+      url: URL.createObjectURL(file),
+      name: file.name,
+    }));
+
+    setImagePreviews(nextPreviews);
+
+    return () => {
+      nextPreviews.forEach((item) => URL.revokeObjectURL(item.url));
+    };
+  }, [selectedImages]);
+
   const handleInput = (field) => (event) => {
     setForm((prev) => ({ ...prev, [field]: event.target.value }));
   };
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-    setUploading(true);
+  const handleImageSelection = (event) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
     setError('');
-    try {
-      const response = await uploadImage(file);
-      setForm((prev) => ({ ...prev, image: response.data.url }));
-      setPreview(response.data.url);
-    } catch {
-      setError('Image upload failed. Please try again.');
-    } finally {
-      setUploading(false);
-    }
+    setSelectedImages((prev) => [...prev, ...files]);
+    event.target.value = '';
+  };
+
+  const removeExistingImage = (indexToRemove) => {
+    setExistingImages((prev) => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const removeSelectedImage = (indexToRemove) => {
+    setSelectedImages((prev) => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const submitPost = async (publishStatus) => {
@@ -96,8 +110,8 @@ const AdminPostEditorPage = () => {
       setError('Content is required');
       return;
     }
-    if (!form.image) {
-      setError('Featured image is required');
+    if (existingImages.length + selectedImages.length === 0) {
+      setError('At least one image is required');
       return;
     }
     if (!form.category) {
@@ -113,16 +127,16 @@ const AdminPostEditorPage = () => {
     setLoading(true);
 
     try {
-      const payload = {
-        title: form.title.trim(),
-        sourceName: form.sourceName.trim(),
-        content: form.content,
-        image: form.image,
-        category: form.category,
-        tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
-        status: publishStatus,
-        publishAt: publishStatus === 'scheduled' ? new Date(form.publishAt).toISOString() : null,
-      };
+      const payload = new FormData();
+      payload.append('title', form.title.trim());
+      payload.append('sourceName', form.sourceName.trim());
+      payload.append('content', form.content);
+      payload.append('category', form.category);
+      payload.append('tags', JSON.stringify(form.tags.split(',').map((t) => t.trim()).filter(Boolean)));
+      payload.append('status', publishStatus);
+      payload.append('publishAt', publishStatus === 'scheduled' ? new Date(form.publishAt).toISOString() : '');
+      payload.append('existingImages', JSON.stringify(existingImages));
+      selectedImages.forEach((file) => payload.append('images', file));
 
       if (id) {
         await updatePost(id, payload);
@@ -206,15 +220,7 @@ const AdminPostEditorPage = () => {
               <strong>Scheduling tip</strong>
               <span>Use the schedule button below to publish this story automatically at the chosen time.</span>
             </div>
-
-            <label className="editor-field editor-field-full">
-              Featured Image
-              <input type="file" accept="image/*" onChange={handleImageUpload} disabled={uploading || loading} />
-            </label>
           </div>
-
-          {uploading ? <p className="editor-uploading">Uploading image...</p> : null}
-          {preview ? <img className="editor-preview" src={preview} alt="Preview" /> : null}
 
           <label className="editor-field editor-field-full">
             Story Content
@@ -225,26 +231,84 @@ const AdminPostEditorPage = () => {
             />
           </label>
 
+          <label className="editor-field editor-field-full">
+            Article Images
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleImageSelection}
+              disabled={loading}
+            />
+            <span className="editor-field-hint">The first image will be used as the featured image.</span>
+          </label>
+
+          {(existingImages.length > 0 || imagePreviews.length > 0) ? (
+            <div className="post-image-preview-stack">
+              {existingImages.length > 0 ? (
+                <div className="post-image-preview-group">
+                  <div className="post-image-preview-heading">Current Images</div>
+                  <div className="post-image-preview-grid">
+                    {existingImages.map((imageUrl, index) => (
+                      <div key={`${imageUrl}-${index}`} className="post-image-preview-card">
+                        {index === 0 ? <span className="featured-image-badge">Featured</span> : null}
+                        <img className="editor-preview gallery-preview" src={imageUrl} alt={`Existing ${index + 1}`} />
+                        <button
+                          type="button"
+                          className="button button-ghost preview-remove-button"
+                          onClick={() => removeExistingImage(index)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {imagePreviews.length > 0 ? (
+                <div className="post-image-preview-group">
+                  <div className="post-image-preview-heading">Selected Images</div>
+                  <div className="post-image-preview-grid">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={preview.key} className="post-image-preview-card">
+                        {existingImages.length === 0 && index === 0 ? <span className="featured-image-badge">Featured</span> : null}
+                        <img className="editor-preview gallery-preview" src={preview.url} alt={preview.name} />
+                        <button
+                          type="button"
+                          className="button button-ghost preview-remove-button"
+                          onClick={() => removeSelectedImage(index)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           {error ? <p className="form-error">{error}</p> : null}
 
           <div className="form-actions editor-actions">
             <button
               className="button button-secondary"
-              disabled={loading || uploading}
+              disabled={loading}
               onClick={() => submitPost('draft')}
             >
               {loading ? 'Saving...' : 'Save Draft'}
             </button>
             <button
               className="button button-secondary editor-schedule-button"
-              disabled={loading || uploading}
+              disabled={loading}
               onClick={() => submitPost('scheduled')}
             >
               {loading ? 'Scheduling...' : 'Schedule Post'}
             </button>
             <button
               className="button button-primary"
-              disabled={loading || uploading}
+              disabled={loading}
               onClick={() => submitPost('published')}
             >
               {loading ? 'Publishing...' : 'Publish Now'}

@@ -6,7 +6,6 @@ import { getSiteContent } from '../services/siteContentService';
 import NewsCard from '../components/NewsCard';
 import Sidebar from '../components/Sidebar';
 
-// Helper to clean HTML for meta descriptions
 const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
 
 const PostPage = () => {
@@ -67,35 +66,33 @@ const PostPage = () => {
     return <div className="empty-state container-lg">{error || 'Story not found.'}</div>;
   }
 
-  // 🔥 FIXED SHARE URL (IMPORTANT)
-  const siteUrl = "https://bboreporters.com";
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : 'https://thebboreporters.com';
+  const articleUrl = `${siteUrl}/post/${post.slug}`;
   const shareUrl = `${siteUrl}/share/${post.slug}`;
 
   const metaTitle = `${post.title} | BBOreporters`;
-  const metaDescription = post.excerpt || stripHtml(post.content).slice(0, 155) + '...';
-
-  const metaImage = post?.image?.startsWith('http')
-    ? post.image
-    : `${siteUrl}${post.image}`;
+  const metaDescription = post.excerpt || `${stripHtml(post.content).slice(0, 155)}...`;
+  const galleryImages = post.images?.length ? post.images : post.image ? [post.image] : [];
+  const metaImage = post?.image?.startsWith('http') ? post.image : `${siteUrl}${post.image}`;
 
   return (
     <section className="page-content container-lg post-page">
       <Helmet>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDescription} />
-
-        {/* Open Graph */}
         <meta property="og:type" content="article" />
-        <meta property="og:url" content={shareUrl} />
+        <meta property="og:site_name" content="TheBBOreporters" />
+        <meta property="og:url" content={articleUrl} />
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />
         <meta property="og:image" content={metaImage} />
-
-        {/* Twitter */}
+        <meta property="og:image:secure_url" content={metaImage} />
+        <meta property="og:image:alt" content={post.title} />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={metaTitle} />
         <meta name="twitter:description" content={metaDescription} />
         <meta name="twitter:image" content={metaImage} />
+        <meta name="twitter:image:alt" content={post.title} />
       </Helmet>
 
       <div className="post-layout">
@@ -121,8 +118,37 @@ const PostPage = () => {
 
           <div className="post-content" dangerouslySetInnerHTML={{ __html: post.content }} />
 
+          {galleryImages.length > 1 ? (
+            <section className="post-gallery-section">
+              <div className="section-heading">
+                <h2>Photo Gallery</h2>
+                <p>More images from this story.</p>
+              </div>
+              <div className="post-gallery-grid">
+                {galleryImages.slice(1).map((image, index) => (
+                  <img
+                    key={`${image}-${index}`}
+                    src={image}
+                    alt={`${post.title} gallery ${index + 1}`}
+                    className="post-gallery-image"
+                    loading="lazy"
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <div className="post-share">
             <span>Share this story:</span>
+
+            <a
+              href={`https://api.whatsapp.com/send?text=${encodeURIComponent(`${post.title} ${shareUrl}`)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="share-btn wa"
+            >
+              WhatsApp
+            </a>
 
             <a
               href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`}
@@ -139,7 +165,16 @@ const PostPage = () => {
               rel="noreferrer"
               className="share-btn tw"
             >
-              Twitter
+              X
+            </a>
+
+            <a
+              href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`}
+              target="_blank"
+              rel="noreferrer"
+              className="share-btn ln"
+            >
+              LinkedIn
             </a>
 
             <button
@@ -161,7 +196,7 @@ const PostPage = () => {
         />
       </div>
 
-      {related.length > 0 && (
+      {related.length > 0 ? (
         <section className="related-section">
           <h2>Related Stories</h2>
           <div className="related-grid">
@@ -170,7 +205,7 @@ const PostPage = () => {
             ))}
           </div>
         </section>
-      )}
+      ) : null}
     </section>
   );
 };

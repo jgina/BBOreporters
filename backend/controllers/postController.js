@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Post = require('../models/Post');
 const Category = require('../models/Category');
+const cloudinary = require('../config/cloudinaryConfig');
 
 const buildVisiblePostsFilter = () => ({
   $or: [
@@ -23,6 +24,49 @@ const normalisePublishState = (requestedStatus, publishAtInput) => {
     publishAt: null,
   };
 };
+
+const parseArrayField = (value) => {
+  if (!value) return [];
+  if (Array.isArray(value)) return value;
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return String(value)
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+};
+
+const uploadToCloudinary = (file) =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: 'news-platform' },
+      (error, result) => {
+        if (error) {
+          reject(new Error('Cloudinary upload failed'));
+          return;
+        }
+
+        resolve(result.secure_url);
+      }
+    );
+
+    stream.end(file.buffer);
+  });
+
+const uploadFilesToCloudinary = async (files = []) =>
+  Promise.all(files.map((file) => uploadToCloudinary(file)));
+
+const escapeHtml = (value = '') =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 
 // ================= GET POSTS =================
 exports.getPosts = async (req, res, next) => {
@@ -117,7 +161,12 @@ exports.getPostForAdmin = async (req, res, next) => {
 
 // ================= CREATE =================
 exports.createPost = async (req, res, next) => {
-  const { title, content, image, category, tags, status, publishAt, sourceName } = req.body;
+  const { title, content, category, status, publishAt, sourceName } = req.body;
+  const tags = parseArrayField(req.body.tags);
+  const existingImages = parseArrayField(req.body.existingImages);
+  const uploadedImages = await uploadFilesToCloudinary(req.files || []);
+  const images = [...existingImages, ...uploadedImages].filter(Boolean);
+  const image = images[0] || '';
 
   if (!title || !content || !image || !category) {
     res.status(400);
@@ -145,8 +194,9 @@ exports.createPost = async (req, res, next) => {
     title,
     content,
     image,
+    images,
     category: categoryDoc._id,
-    tags: tags || [],
+    tags,
     author: req.user._id,
     sourceName: sourceName || '',
     ...publishState,
@@ -164,11 +214,19 @@ exports.updatePost = async (req, res, next) => {
     return next(new Error('Post not found'));
   }
 
-  const { title, content, image, category, tags, status, publishAt, sourceName } = req.body;
+  const { title, content, category, status, publishAt, sourceName } = req.body;
+  const tags = parseArrayField(req.body.tags);
+  const existingImages = parseArrayField(req.body.existingImages);
+  const uploadedImages = await uploadFilesToCloudinary(req.files || []);
+  const images = [...existingImages, ...uploadedImages].filter(Boolean);
+  const image = images[0] || '';
 
   if (title) post.title = title;
   if (content) post.content = content;
-  if (image) post.image = image;
+  if (image) {
+    post.image = image;
+    post.images = images;
+  }
 
   if (category) {
     const categoryDoc =
@@ -177,7 +235,7 @@ exports.updatePost = async (req, res, next) => {
     if (categoryDoc) post.category = categoryDoc._id;
   }
 
-  if (tags) post.tags = tags;
+  post.tags = tags;
   if (typeof sourceName === 'string') post.sourceName = sourceName;
 
   if (status) {
@@ -222,7 +280,9 @@ exports.getPostSharePage = async (req, res) => {
       return res.status(404).send('Post not found');
     }
 
-    const siteUrl = "https://thebboreporters.com";
+    const siteUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+    const canonicalUrl = `${siteUrl}/post/${slug}`;
+    const previewUrl = `${siteUrl}/share/${slug}`;
 
     const image = post.image?.startsWith('http')
       ? post.image
@@ -234,30 +294,39 @@ exports.getPostSharePage = async (req, res) => {
         ? post.content.replace(/<[^>]+>/g, '').slice(0, 155)
         : '');
 
+    const safeTitle = escapeHtml(post.title);
+    const safeDescription = escapeHtml(description);
+    const safeImage = escapeHtml(image);
+    const safeCanonicalUrl = escapeHtml(canonicalUrl);
+    const safePreviewUrl = escapeHtml(previewUrl);
+
     res.send(`
       <!DOCTYPE html>
       <html>
       <head>
-        <title>${post.title}</title>
+        <title>${safeTitle}</title>
 
         <meta property="og:type" content="article" />
-        <meta property="og:url" content="${siteUrl}/post/${slug}" />
-        <meta property="og:title" content="${post.title}" />
-        <meta property="og:description" content="${description}" />
-        <meta property="og:image" content="${image}" />
-        <meta property="og:image:secure_url" content="${image}" />
+        <meta property="og:site_name" content="TheBBOreporters" />
+        <meta property="og:url" content="${safePreviewUrl}" />
+        <meta property="og:title" content="${safeTitle}" />
+        <meta property="og:description" content="${safeDescription}" />
+        <meta property="og:image" content="${safeImage}" />
+        <meta property="og:image:secure_url" content="${safeImage}" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="${safeTitle}" />
 
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="${post.title}" />
-        <meta name="twitter:description" content="${description}" />
-        <meta name="twitter:image" content="${image}" />
+        <meta name="twitter:title" content="${safeTitle}" />
+        <meta name="twitter:description" content="${safeDescription}" />
+        <meta name="twitter:image" content="${safeImage}" />
+        <meta name="twitter:image:alt" content="${safeTitle}" />
 
-        <link rel="canonical" href="${siteUrl}/post/${slug}" />
+        <link rel="canonical" href="${safeCanonicalUrl}" />
 
         <script>
-          window.location.href = "${siteUrl}/post/${slug}";
+          window.location.replace("${safeCanonicalUrl}");
         </script>
       </head>
       <body></body>

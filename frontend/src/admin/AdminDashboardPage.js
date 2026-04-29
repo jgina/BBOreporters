@@ -5,9 +5,13 @@ import { fetchPosts, deletePost } from '../services/postService';
 import { getSiteContent, saveSiteContent } from '../services/siteContentService';
 
 const AdminDashboardPage = () => {
+  const POSTS_PER_PAGE = 10;
   const initialSiteContent = getSiteContent();
   const [stats, setStats] = useState(null);
   const [latestPosts, setLatestPosts] = useState([]);
+  const [postPage, setPostPage] = useState(1);
+  const [postPages, setPostPages] = useState(1);
+  const [loadingMorePosts, setLoadingMorePosts] = useState(false);
   const [error, setError] = useState('');
   const [savedMessage, setSavedMessage] = useState('');
   const [sponsored, setSponsored] = useState(initialSiteContent.sponsored);
@@ -18,11 +22,13 @@ const AdminDashboardPage = () => {
     setError('');
     Promise.all([
       fetchAdminStats(),
-      fetchPosts({ limit: 10, status: 'all' }),
+      fetchPosts({ limit: POSTS_PER_PAGE, page: 1, status: 'all' }),
     ])
       .then(([statsRes, postsRes]) => {
         setStats(statsRes.data);
         setLatestPosts(postsRes.data.posts);
+        setPostPage(postsRes.data?.page || 1);
+        setPostPages(postsRes.data?.pages || 1);
       })
       .catch(() => setError('Could not load dashboard data.'));
   }, []);
@@ -68,7 +74,31 @@ const AdminDashboardPage = () => {
 
   const handleRemoveSocialLink = (index) => {
     setSocialLinks((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
-    setSavedMessage('');
+      setSavedMessage('');
+    };
+
+  const handleLoadMorePosts = async () => {
+    if (loadingMorePosts || postPage >= postPages) return;
+
+    const nextPage = postPage + 1;
+    setLoadingMorePosts(true);
+    setError('');
+
+    try {
+      const response = await fetchPosts({ limit: POSTS_PER_PAGE, page: nextPage, status: 'all' });
+      const incomingPosts = response.data?.posts || [];
+
+      setLatestPosts((prev) => {
+        const knownIds = new Set(prev.map((item) => item._id));
+        return [...prev, ...incomingPosts.filter((item) => !knownIds.has(item._id))];
+      });
+      setPostPage(response.data?.page || nextPage);
+      setPostPages(response.data?.pages || postPages);
+    } catch {
+      setError('Could not load more posts.');
+    } finally {
+      setLoadingMorePosts(false);
+    }
   };
 
   return (
@@ -111,7 +141,17 @@ const AdminDashboardPage = () => {
       )}
       <section className="admin-panel">
         <div className="panel-card">
-          <h2>Latest stories</h2>
+          <div className="admin-posts-head">
+            <div>
+              <h2>Latest stories</h2>
+              <p>Expand the list anytime to manage older posts too.</p>
+            </div>
+            {postPages > 1 ? (
+              <span className="admin-post-count">
+                Showing {latestPosts.length} of {stats?.totalPosts || latestPosts.length}
+              </span>
+            ) : null}
+          </div>
           <div className="admin-list">
             {latestPosts.length === 0 && !error && (
               <p className="empty-state">No posts yet. Create your first story.</p>
@@ -137,6 +177,18 @@ const AdminDashboardPage = () => {
               </div>
             ))}
           </div>
+          {postPage < postPages ? (
+            <div className="admin-loadmore-wrap">
+              <button
+                type="button"
+                className="button button-primary admin-loadmore-button"
+                onClick={handleLoadMorePosts}
+                disabled={loadingMorePosts}
+              >
+                {loadingMorePosts ? 'Loading more posts...' : 'Show More Posts'}
+              </button>
+            </div>
+          ) : null}
         </div>
         <div className="panel-card quick-links">
           <h2>Editorial tools</h2>
