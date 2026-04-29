@@ -75,6 +75,7 @@ const buildShareHtml = ({ title, description, image, articleUrl, previewUrl }) =
     <meta charset="utf-8" />
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
+    <meta http-equiv="refresh" content="0; url=${escapeHtml(articleUrl)}" />
 
     <meta property="og:type" content="article" />
     <meta property="og:site_name" content="TheBBOreporters" />
@@ -84,6 +85,7 @@ const buildShareHtml = ({ title, description, image, articleUrl, previewUrl }) =
     <meta property="og:image" content="${escapeHtml(image)}" />
     <meta property="og:image:url" content="${escapeHtml(image)}" />
     <meta property="og:image:secure_url" content="${escapeHtml(image)}" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="${escapeHtml(title)}" />
@@ -97,6 +99,7 @@ const buildShareHtml = ({ title, description, image, articleUrl, previewUrl }) =
     <link rel="canonical" href="${escapeHtml(previewUrl)}" />
   </head>
   <body>
+    <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" />
     <script>
       window.location.replace("${escapeHtml(articleUrl)}");
     </script>
@@ -111,10 +114,13 @@ const getVisiblePostBySlug = async (slug) =>
   }).lean();
 
 const buildSharePayload = (req, post) => {
-  const siteUrl = process.env.CLIENT_URL || `${req.protocol}://${req.get('host')}`;
+  const forwardedProto = req.get('x-forwarded-proto');
+  const protocol = forwardedProto ? forwardedProto.split(',')[0] : req.protocol;
+  const siteUrl = process.env.CLIENT_URL || `${protocol}://${req.get('host')}`;
   const articleUrl = `${siteUrl}/post/${post.slug}`;
   const previewUrl = `${siteUrl}/share/${post.slug}`;
-  const image = post.image?.startsWith('http') ? post.image : `${siteUrl}${post.image}`;
+  const primaryImage = post.image || post.images?.[0] || '';
+  const image = primaryImage.startsWith('http') ? primaryImage : `${siteUrl}${primaryImage}`;
   const description =
     post.excerpt || (post.content ? post.content.replace(/<[^>]+>/g, '').slice(0, 155) : '');
 
