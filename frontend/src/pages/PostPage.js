@@ -15,6 +15,7 @@ const PostPage = () => {
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [copySuccess, setCopySuccess] = useState(false);
   const siteContent = getSiteContent();
 
   useEffect(() => {
@@ -74,6 +75,16 @@ const PostPage = () => {
   const metaDescription = post.excerpt || `${stripHtml(post.content).slice(0, 155)}...`;
   const galleryImages = post.images?.length ? post.images : post.image ? [post.image] : [];
   const metaImage = post?.image?.startsWith('http') ? post.image : `${siteUrl}${post.image}`;
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopySuccess(true);
+      window.setTimeout(() => setCopySuccess(false), 1800);
+    } catch {
+      setCopySuccess(false);
+    }
+  };
 
   return (
     <section className="page-content container-lg post-page">
@@ -179,13 +190,11 @@ const PostPage = () => {
 
             <button
               className="share-btn copy"
-              onClick={() => {
-                navigator.clipboard.writeText(shareUrl);
-                alert('Link copied to clipboard!');
-              }}
+              onClick={handleCopyLink}
             >
               Copy Link
             </button>
+            {copySuccess ? <span className="copy-success-pill">Copied</span> : null}
           </div>
         </article>
 
