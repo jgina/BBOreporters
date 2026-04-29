@@ -359,6 +359,7 @@ a:hover {
 .header-nav-band {
   background: #ffffff;
   border-bottom: 1px solid #ececec;
+  position: relative;
 }
 
 .header-nav-inner {
@@ -390,12 +391,27 @@ a:hover {
   min-width: 0;
   flex: 1;
   overflow-x: auto;
+  overflow-y: hidden;
   white-space: nowrap;
-  scrollbar-width: none;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(200, 29, 37, 0.5) rgba(200, 29, 37, 0.08);
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.2rem 0 0.35rem;
 }
 
 .site-nav::-webkit-scrollbar {
-  display: none;
+  height: 6px;
+}
+
+.site-nav::-webkit-scrollbar-track {
+  background: rgba(200, 29, 37, 0.08);
+  border-radius: 999px;
+}
+
+.site-nav::-webkit-scrollbar-thumb {
+  background: rgba(200, 29, 37, 0.45);
+  border-radius: 999px;
 }
 
 .site-nav a {
@@ -405,6 +421,7 @@ a:hover {
   font-weight: 600;
   padding: 0.55rem 0.8rem;
   border-radius: 999px;
+  scroll-snap-align: start;
   transition: color 0.2s ease, background-color 0.2s ease;
 }
 
