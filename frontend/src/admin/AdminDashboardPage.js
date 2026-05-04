@@ -30,7 +30,10 @@ const AdminDashboardPage = () => {
         setPostPage(postsRes.data?.page || 1);
         setPostPages(postsRes.data?.pages || 1);
       })
-      .catch(() => setError('Could not load dashboard data.'));
+      .catch((err) => {
+        console.error('Dashboard data load error:', err);
+        setError(err?.response?.data?.message || 'Could not load dashboard data.');
+      });
   }, []);
 
   useEffect(() => {
