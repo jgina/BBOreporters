@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { fetchCategories } from '../services/categoryService';
 import { fetchPosts } from '../services/postService';
@@ -7,6 +6,7 @@ import { getSiteContent } from '../services/siteContentService';
 import NewsCard from '../components/NewsCard';
 import Sidebar from '../components/Sidebar';
 import LoadingSkeleton from '../components/LoadingSkeleton';
+import Seo, { SITE_NAME, SITE_URL } from '../components/Seo';
 
 const preferredCategories = ['politics', 'business', 'sports', 'entertainment', 'health', 'education'];
 const POSTS_PER_PAGE = 12;
@@ -111,40 +111,36 @@ const HomePage = () => {
   // Helper inside the component to ensure it's accessible
   const stripHtml = (content = '') => content.replace(/<[^>]+>/g, '');
 
-  // --- Metadata Logic ---
-  const siteUrl = "https://bboreporters.com";
-  const metaTitle = topStory ? `${topStory.title} | BBOreporters` : 'BBOreporters | Breaking News & Local Coverage';
-  const metaDescription = topStory 
-    ? (topStory.excerpt || stripHtml(topStory.content).slice(0, 150) + '...') 
-    : 'Stay updated with breaking news, politics, business, sports, and more.';
-  
-  // Force Absolute URL for the image
-  const metaImage = topStory?.image?.startsWith('http') 
-    ? topStory.image 
-    : `${siteUrl}${topStory?.image || '/default-og-image.jpg'}`;
-
   return (
     <section className="page-content container-lg">
-      <Helmet>
-        <title>{metaTitle}</title>
-        <meta name="description" content={metaDescription} />
-
-        {/* Facebook / WhatsApp / LinkedIn / Telegram */}
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={window.location.href} />
-        <meta property="og:title" content={metaTitle} />
-        <meta property="og:description" content={metaDescription} />
-        <meta property="og:image" content={metaImage} />
-        <meta property="og:image:secure_url" content={metaImage} />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-
-        {/* X (Twitter) */}
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={metaTitle} />
-        <meta name="twitter:description" content={metaDescription} />
-        <meta name="twitter:image" content={metaImage} />
-      </Helmet>
+      <Seo
+        path="/"
+        image={topStory?.image}
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'NewsMediaOrganization',
+            '@id': `${SITE_URL}/#organization`,
+            name: SITE_NAME,
+            url: `${SITE_URL}/`,
+            logo: { '@type': 'ImageObject', url: `${SITE_URL}/logo.png` },
+            email: 'support@bboreporters.com',
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            '@id': `${SITE_URL}/#website`,
+            url: `${SITE_URL}/`,
+            name: SITE_NAME,
+            publisher: { '@id': `${SITE_URL}/#organization` },
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: { '@type': 'EntryPoint', urlTemplate: `${SITE_URL}/search?q={search_term_string}` },
+              'query-input': 'required name=search_term_string',
+            },
+          },
+        ]}
+      />
 
       {loading ? (
         <LoadingSkeleton />
@@ -169,7 +165,7 @@ const HomePage = () => {
                   <>
                     <Link to={`/post/${topStory.slug}`} className="main-headline-image">
                       <img src={topStory.image} alt="" aria-hidden="true" className="main-headline-image-backdrop" loading="lazy" />
-                      <img src={topStory.image} alt={topStory.title} className="main-headline-image-main" loading="lazy" />
+                      <img src={topStory.image} alt={topStory.title} className="main-headline-image-main" fetchpriority="high" />
                     </Link>
                     <div className="main-headline-body">
                       <span className="news-card-category">{topStory.category?.name || 'Top Story'}</span>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
+import Seo, { SITE_NAME, SITE_URL, breadcrumbSchema } from '../components/Seo';
 import { Link } from 'react-router-dom';
 import { fetchAuthors } from '../services/authorService';
 
@@ -17,10 +17,17 @@ const AuthorsPage = () => {
 
   return (
     <section className="page-content container-lg authors-page">
-      <Helmet>
-        <title>Authors | TheBBOreporters</title>
-        <meta name="description" content="Meet the editorial board, correspondents, and reporters behind TheBBOreporters." />
-      </Helmet>
+      <Seo
+        title={`Our Authors | ${SITE_NAME}`}
+        description={`Meet the editors, correspondents and reporters behind ${SITE_NAME}.`}
+        path="/authors"
+        jsonLd={[
+          breadcrumbSchema([
+            { name: 'Home', url: `${SITE_URL}/` },
+            { name: 'Authors', url: `${SITE_URL}/authors` },
+          ]),
+        ]}
+      />
 
       <section className="authors-hero">
         <span className="admin-sidebar-kicker">Editorial Team</span>

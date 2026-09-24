@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Seo, { SITE_NAME, SITE_URL, breadcrumbSchema } from '../components/Seo';
+import { useCategories } from '../context/CategoriesContext';
 import { fetchPosts } from '../services/postService';
 import NewsCard from '../components/NewsCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
@@ -16,6 +17,9 @@ const CategoryPage = () => {
   const [meta, setMeta] = useState({ page: 1, pages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { categories } = useCategories();
+  const categoryName = categories.find((c) => c.slug === slug)?.name || slugToTitle(slug);
+  const basePath = `/category/${slug}`;
 
   useEffect(() => {
     setLoading(true);
@@ -37,13 +41,21 @@ const CategoryPage = () => {
 
   return (
     <section className="page-content container-lg category-page">
-      <Helmet>
-        <title>{slugToTitle(slug)} News | BBOreporters</title>
-        <meta name="description" content={`Browse the latest ${slugToTitle(slug)} headlines.`} />
-      </Helmet>
+      <Seo
+        title={`${categoryName} News${page > 1 ? ` (Page ${page})` : ''} | ${SITE_NAME}`}
+        description={`Latest ${categoryName} news, updates and analysis from ${SITE_NAME}.`}
+        path={page > 1 ? `${basePath}?page=${page}` : basePath}
+        image={posts[0]?.image}
+        jsonLd={[
+          breadcrumbSchema([
+            { name: 'Home', url: `${SITE_URL}/` },
+            { name: categoryName, url: `${SITE_URL}${basePath}` },
+          ]),
+        ]}
+      />
       <div className="section-heading">
-        <h1>{slugToTitle(slug).toUpperCase()}</h1>
-        <p>Latest coverage and live updates from the {slugToTitle(slug)} desk.</p>
+        <h1>{categoryName} News</h1>
+        <p>Latest coverage and live updates from the {categoryName} desk.</p>
       </div>
       {loading ? (
         <LoadingSkeleton />

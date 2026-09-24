@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import Seo, { SITE_NAME } from '../components/Seo';
 import { fetchPosts } from '../services/postService';
 import NewsCard from '../components/NewsCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
@@ -29,10 +29,11 @@ const SearchPage = () => {
 
   return (
     <section className="page-content container-lg search-page">
-      <Helmet>
-        <title>Search: {query} | BBOreporters</title>
-        <meta name="description" content={`Search results for ${query} on BBOreporters.`} />
-      </Helmet>
+      <Seo
+        title={query ? `Search: ${query} | ${SITE_NAME}` : `Search | ${SITE_NAME}`}
+        description={`Search results for ${query} on ${SITE_NAME}.`}
+        noindex
+      />
       <div className="section-heading">
         <h1>Search results</h1>
         <p>Showing stories for «{query}»</p>

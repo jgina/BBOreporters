@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { CategoriesProvider } from './context/CategoriesContext';
 
@@ -10,6 +10,7 @@ import CookieConsentBanner from './components/CookieConsentBanner';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
+import Seo, { SITE_NAME } from './components/Seo';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -28,10 +29,13 @@ import AdminPostEditorPage from './admin/AdminPostEditorPage';
 import AdminCategoryPage from './admin/AdminCategoryPage';
 
 function App() {
+  const { pathname } = useLocation();
+
   return (
     <HelmetProvider>
       <CategoriesProvider>
         <div className="app-shell">
+          {pathname.startsWith('/admin') ? <Seo title={`Admin | ${SITE_NAME}`} noindex /> : null}
           <AnalyticsTracker />
           <CookieConsentBanner />
           <Header />

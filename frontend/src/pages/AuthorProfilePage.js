@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Helmet } from 'react-helmet-async';
+import Seo, { SITE_NAME, SITE_URL, absoluteUrl, breadcrumbSchema, stripHtml, truncate } from '../components/Seo';
 import { Link, useParams } from 'react-router-dom';
 import { fetchAuthorBySlug } from '../services/authorService';
 import NewsCard from '../components/NewsCard';
@@ -28,12 +28,43 @@ const AuthorProfilePage = () => {
     return <div className="empty-state container-lg">{error || 'Author not found.'}</div>;
   }
 
+  const profilePath = `/authors/${author.slug}`;
+  const profileUrl = `${SITE_URL}${profilePath}`;
+  const description = truncate(
+    stripHtml(author.summary) || stripHtml(author.bio) || `${author.name}, ${author.title} at ${SITE_NAME}.`,
+    160
+  );
+
   return (
     <section className="page-content container-lg author-profile-page">
-      <Helmet>
-        <title>{author.name} | TheBBOreporters Authors</title>
-        <meta name="description" content={author.summary || `${author.name} is part of the TheBBOreporters editorial team.`} />
-      </Helmet>
+      <Seo
+        title={`${author.name}, ${author.title} | ${SITE_NAME}`}
+        description={description}
+        path={profilePath}
+        image={author.image}
+        type="profile"
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'ProfilePage',
+            url: profileUrl,
+            mainEntity: {
+              '@type': 'Person',
+              name: author.name,
+              jobTitle: author.title,
+              description,
+              image: absoluteUrl(author.image),
+              url: profileUrl,
+              worksFor: { '@id': `${SITE_URL}/#organization` },
+            },
+          },
+          breadcrumbSchema([
+            { name: 'Home', url: `${SITE_URL}/` },
+            { name: 'Authors', url: `${SITE_URL}/authors` },
+            { name: author.name, url: profileUrl },
+          ]),
+        ]}
+      />
 
       <div className="author-profile-shell">
         <aside className="author-profile-aside">

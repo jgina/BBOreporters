@@ -1,4 +1,4 @@
-import { Helmet } from 'react-helmet-async';
+import Seo, { SITE_NAME } from '../components/Seo';
 
 const PrivacyPolicyPage = () => {
   const effectiveDate = 'April 24, 2026';
@@ -7,13 +7,11 @@ const PrivacyPolicyPage = () => {
 
   return (
     <section className="page-content container-lg legal-page">
-      <Helmet>
-        <title>Privacy Policy | TheBBOreporters</title>
-        <meta
-          name="description"
-          content="Read the TheBBOreporters Privacy Policy to understand how personal information, cookies, analytics, and user rights are handled on this news platform."
-        />
-      </Helmet>
+      <Seo
+        title={`Privacy Policy | ${SITE_NAME}`}
+        description={`Read the ${SITE_NAME} Privacy Policy to understand how personal information, cookies, analytics and user rights are handled.`}
+        path="/privacy-policy"
+      />
 
       <div className="legal-hero">
         <span className="admin-sidebar-kicker">Legal</span>

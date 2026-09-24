@@ -9,6 +9,7 @@ const buildVisiblePostsFilter = () => ({
     { status: 'scheduled', publishAt: { $lte: new Date() } },
   ],
 });
+exports.buildVisiblePostsFilter = buildVisiblePostsFilter;
 
 const normalisePublishState = (requestedStatus, publishAtInput) => {
   if (requestedStatus === 'scheduled') {
@@ -73,6 +74,7 @@ const buildShareHtml = ({ title, description, image, articleUrl, previewUrl }) =
   <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <meta name="robots" content="noindex, follow" />
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}" />
     <meta http-equiv="refresh" content="0; url=${escapeHtml(articleUrl)}" />
@@ -96,7 +98,7 @@ const buildShareHtml = ({ title, description, image, articleUrl, previewUrl }) =
     <meta name="twitter:image" content="${escapeHtml(image)}" />
     <meta name="twitter:image:alt" content="${escapeHtml(title)}" />
 
-    <link rel="canonical" href="${escapeHtml(previewUrl)}" />
+    <link rel="canonical" href="${escapeHtml(articleUrl)}" />
   </head>
   <body>
     <img src="${escapeHtml(image)}" alt="${escapeHtml(title)}" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;" />
@@ -348,23 +350,3 @@ exports.getPostSharePage = async (req, res) => {
   }
 };
 
-exports.getPostMetaForCrawler = async (req, res, next) => {
-  try {
-    const userAgent = (req.get('user-agent') || '').toLowerCase();
-    const isCrawler = /(facebookexternalhit|facebot|whatsapp|twitterbot|linkedinbot|slackbot|telegrambot|discordbot|skypeuripreview|googlebot)/i.test(userAgent);
-
-    if (!isCrawler) {
-      return next();
-    }
-
-    const post = await getVisiblePostBySlug(req.params.slug);
-
-    if (!post) {
-      return next();
-    }
-
-    res.send(buildShareHtml(buildSharePayload(req, post)));
-  } catch (error) {
-    next(error);
-  }
-};
