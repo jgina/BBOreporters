@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import {
   COOKIE_CONSENT_EVENT,
   getCookieConsent,
@@ -7,6 +8,7 @@ import {
 } from '../services/cookieConsentService';
 
 const GA_ID = process.env.REACT_APP_GA_ID;
+const filterVercelEvents = (event) => (hasAnalyticsConsent() ? event : null);
 
 const AnalyticsTracker = () => {
   const location = useLocation();
@@ -61,7 +63,7 @@ const AnalyticsTracker = () => {
     });
   }, [analyticsEnabled, location]);
 
-  return null;
+  return analyticsEnabled ? <Analytics beforeSend={filterVercelEvents} /> : null;
 };
 
 export default AnalyticsTracker;
