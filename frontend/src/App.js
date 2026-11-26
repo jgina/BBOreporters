@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
+import { Analytics } from '@vercel/analytics/react';
 import { CategoriesProvider } from './context/CategoriesContext';
 
 // Components
@@ -36,6 +37,7 @@ function App() {
       <CategoriesProvider>
         <div className="app-shell">
           {pathname.startsWith('/admin') ? <Seo title={`Admin | ${SITE_NAME}`} noindex /> : null}
+          <Analytics />
           <AnalyticsTracker />
           <CookieConsentBanner />
           <Header />
